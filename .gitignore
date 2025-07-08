@@ -1,0 +1,8 @@
+**/*.o
+**/*.a
+**/.*
+**/obj
+**/valgrind
+*.pdf
+MLX42/
+miniRT

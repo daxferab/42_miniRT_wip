@@ -1,0 +1,180 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: pdel-olm <pdel-olm@student.42madrid.com>   +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2024/08/22 16:54:43 by pdel-olm          #+#    #+#              #
+#    Updated: 2025/07/08 15:43:51 by pdel-olm         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+#GENERAL VARIABLES
+
+MAKEFLAGS := --no-print-directory
+.DEFAULT_GOAL := all
+
+RM := rm -rf
+MKDIR := mkdir -p
+
+NAME := miniRT
+NAME_CAPITAL := MiniRT
+
+CC := cc
+CFLAGS := -Wall -Wextra -Werror -g3 -fsanitize=address
+
+#INCLUDE
+
+LIBFT_PATH := libft/
+LIBFT := $(LIBFT_PATH)libft.a
+LIBFT_FLAG := -L $(LIBFT_PATH) -l ft
+
+MLX_PATH := MLX42
+MLX_BUILD := $(MLX_PATH)/build
+MLX_NAME := $(MLX_BUILD)/libmlx42.a
+MLX_INCLUDE := $(MLX_PATH)/include/MLX42
+MLX_FLAG := -L $(MLX_BUILD) -l mlx42 -l glfw -l dl -l m -pthread
+
+#FILES
+
+DIRECTORIES :=	\
+				parse\
+
+SRC_DIR := src/
+OBJ_DIR := obj/
+INC_DIR := include/
+HEADER := $(INC_DIR)/minirt.h
+
+SOURCES :=	\
+			minirt.c\
+
+OBJECTS := $(addprefix $(OBJ_DIR), $(SOURCES:.c=.o))
+SOURCES := $(addprefix $(SRC_DIR), $(SOURCES))
+
+#COLOURS
+
+RED := \033[31m
+GREEN := \033[32m
+YELLOW := \033[33m
+BLUE := \033[34m
+
+RESET := \033[0m
+
+#EXTRA VARIABLES
+
+VALGRIND_DIR := valgrind/
+
+#RULES
+
+$(NAME): $(LIBFT) $(MLX_NAME) $(OBJECTS)
+	$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_FLAG) $(MLX_FLAG) -o $(NAME)
+
+$(LIBFT):
+	@$(MAKE) -C $(LIBFT_PATH)
+
+$(MLX_NAME): $(MLX_PATH)
+	@$(MAKE) msg_mlx_start
+	cmake $(MLX_PATH) -B $(MLX_BUILD)
+	make -C $(MLX_BUILD) -j4
+	@$(MAKE) msg_mlx_end
+
+$(MLX_PATH):
+	@$(MAKE) msg_mlx_clone_start
+	git clone https://github.com/codam-coding-college/MLX42.git
+	@$(MAKE) msg_mlx_clone_end
+
+$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(HEADER) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_PATH) -I $(MLX_INCLUDE) -c $< -o $@
+
+$(OBJ_DIR):
+	$(MKDIR) $(addprefix $(OBJ_DIR),$(DIRECTORIES))
+	
+.PHONY: a all
+a: all
+all: $(NAME)
+
+.PHONY: c clean
+c: clean
+clean: msg_clean_start
+	$(RM) $(OBJ_DIR)
+	@$(MAKE) -C $(LIBFT_PATH) clean
+	@$(MAKE) msg_clean_end
+
+.PHONY: f fclean
+f: fclean
+fclean: msg_fclean_start
+	$(RM) $(OBJ_DIR) $(MLX_BUILD) $(NAME)
+	@$(MAKE) -C $(LIBFT_PATH) fclean
+	@$(MAKE) msg_fclean_end
+
+.PHONY: r re
+r: re
+re: fclean all
+
+#EXTRA RULES
+
+.PHONY: e exec
+e: exec
+exec: all
+	-./$(NAME)
+
+.PHONY: run
+run: levels fclean
+
+.PHONY: n norminette normi
+n: norminette
+norminette:
+	@echo "norminette $(SRC_DIR) $(LIBFT_PATH) | grep Error\n"
+	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Everything OK!$(RESET)"; fi
+normi:
+	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "\n$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | grep -v -e "TOO_MANY_FUNCS" -e "WRONG_SCOPE_COMMENT" -e "EMPTY_LINE_FUNCTION" -e "LINE_TOO_LONG" -e "TOO_MANY_LINES" -e "CONSECUTIVE_NEWLINES" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Run full norminette!$(RESET)"; fi
+
+.PHONY: v valgrind valgrind_no_flags
+v: valgrind
+valgrind:
+	@$(MAKE) CFLAGS= valgrind_no_flags
+valgrind_no_flags: clean $(LIBFT) $(OBJECTS) | $(VALGRIND_DIR)
+	@$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_FLAG) $(MLX_FLAG) -o $(NAME)
+	@-valgrind --leak-check=full --show-leak-kinds=all --log-file=$(VALGRIND_DIR)$$(date +"%y%m%d%H%M%S").txt ././$(NAME) $(addprefix $(MAP_DIRECTORY), $(addsuffix $(MAP_EXTENSION), $(MAP)))
+	@echo "$(BLUE) $$(grep "ERROR SUMMARY" $(VALGRIND_DIR)/$$(ls valgrind | tail -1))"
+	@$(MAKE) clean
+
+$(VALGRIND_DIR):
+	$(MKDIR) $(VALGRIND_DIR)
+
+.PHONY: last_valgrind
+last_valgrind:
+	@cat $(VALGRIND_DIR)$$(ls valgrind | tail -1)
+
+.PHONY: clean_valgrind
+clean_valgrind:
+	$(RM) $(VALGRIND_DIR)
+
+#MESSAGES
+
+.PHONY: msg_mlx_clone_start, msg_mlx_clone_end, msg_mlx_start msg_mlx_end msg_clean_start msg_clean_end msg_fclean_start msg_fclean_end
+
+msg_mlx_clone_start:
+	@echo "$(YELLOW)Cloning MLX42 repository$(RESET)"
+
+msg_mlx_clone_end:
+	@echo "$(GREEN)MLX42 clone complete$(RESET)"
+
+msg_mlx_start:
+	@echo "$(YELLOW)Starting MLX42 compilation$(RESET)"
+
+msg_mlx_end:
+	@echo "$(GREEN)MLX42 compilation complete$(RESET)"
+
+msg_clean_start:
+	@echo "$(YELLOW)Cleaning $(NAME) objects$(RED)"
+
+msg_clean_end:
+	@echo "$(GREEN)$(NAME_CAPITAL) objects cleaned$(RESET)"
+
+msg_fclean_start:
+	@echo "$(YELLOW)Cleaning $(NAME)$(RED)"
+
+msg_fclean_end:
+	@echo "$(GREEN)$(NAME_CAPITAL) cleaned$(RESET)"
