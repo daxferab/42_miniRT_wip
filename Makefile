@@ -6,7 +6,7 @@
 #    By: pdel-olm <pdel-olm@student.42madrid.com>   +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/08/22 16:54:43 by pdel-olm          #+#    #+#              #
-#    Updated: 2025/07/08 15:43:51 by pdel-olm         ###   ########.fr        #
+#    Updated: 2025/07/09 13:53:12 by pdel-olm         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,6 +48,11 @@ HEADER := $(INC_DIR)/minirt.h
 
 SOURCES :=	\
 			minirt.c\
+			free_exit.c\
+			$(addprefix parse/,\
+				parse_file.c\
+				parse_line.c\
+			)\
 
 OBJECTS := $(addprefix $(OBJ_DIR), $(SOURCES:.c=.o))
 SOURCES := $(addprefix $(SRC_DIR), $(SOURCES))
@@ -59,6 +64,10 @@ GREEN := \033[32m
 YELLOW := \033[33m
 BLUE := \033[34m
 
+PDEL-OLM := \033[38;5;207m
+DAXFERNA := \033[38;5;76m
+CROWN := \033[38;5;220m
+
 RESET := \033[0m
 
 #EXTRA VARIABLES
@@ -69,6 +78,7 @@ VALGRIND_DIR := valgrind/
 
 $(NAME): $(LIBFT) $(MLX_NAME) $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_FLAG) $(MLX_FLAG) -o $(NAME)
+	@$(MAKE) msg_credits
 
 $(LIBFT):
 	@$(MAKE) -C $(LIBFT_PATH)
@@ -117,7 +127,7 @@ re: fclean all
 .PHONY: e exec
 e: exec
 exec: all
-	-./$(NAME)
+	-./$(NAME) scenes/minimalist.rt
 
 .PHONY: run
 run: levels fclean
@@ -128,7 +138,7 @@ norminette:
 	@echo "norminette $(SRC_DIR) $(LIBFT_PATH) | grep Error\n"
 	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Everything OK!$(RESET)"; fi
 normi:
-	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "\n$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | grep -v -e "TOO_MANY_FUNCS" -e "WRONG_SCOPE_COMMENT" -e "EMPTY_LINE_FUNCTION" -e "LINE_TOO_LONG" -e "TOO_MANY_LINES" -e "CONSECUTIVE_NEWLINES" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Run full norminette!$(RESET)"; fi
+	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "\n$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | grep -v -e "TOO_MANY_FUNCS" -e "WRONG_SCOPE_COMMENT" -e "EMPTY_LINE_FUNCTION" -e "LINE_TOO_LONG" -e "TOO_MANY_LINES" -e "CONSECUTIVE_NEWLINES" -e "INVALID_HEADER" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Run full norminette!$(RESET)"; fi
 
 .PHONY: v valgrind valgrind_no_flags
 v: valgrind
@@ -153,7 +163,7 @@ clean_valgrind:
 
 #MESSAGES
 
-.PHONY: msg_mlx_clone_start, msg_mlx_clone_end, msg_mlx_start msg_mlx_end msg_clean_start msg_clean_end msg_fclean_start msg_fclean_end
+.PHONY: msg_mlx_clone_start, msg_mlx_clone_end, msg_mlx_start msg_mlx_end msg_clean_start msg_clean_end msg_fclean_start msg_fclean_end msg_credits
 
 msg_mlx_clone_start:
 	@echo "$(YELLOW)Cloning MLX42 repository$(RESET)"
@@ -178,3 +188,24 @@ msg_fclean_start:
 
 msg_fclean_end:
 	@echo "$(GREEN)$(NAME_CAPITAL) cleaned$(RESET)"
+
+msg_credits:
+	@echo "$(CROWN)\n\
+            ▟╗▟▙╖▙╖\n\
+            ██████║\n\$(PDEL-OLM)\
+██████╗ ████▇▇╗ ▇▇▇████╗██╗            ██████╗ ██╗     ███╗   ███╗\n\
+██╔══██╗██╔══██╗██╔════╝██║           ██╔═══██╗██║     ████╗ ████║\n\
+██████╔╝██║  ██║█████╗  ██║    █████╗ ██║   ██║██║     ██╔████╔██║\n\
+██╔═══╝ ██║  ██║██╔══╝  ██║    ╚════╝ ██║   ██║██║     ██║╚██╔╝██║\n\
+██║     ██████╔╝███████╗███████╗      ╚██████╔╝███████╗██║ ╚═╝ ██║\n\
+╚═╝     ╚═════╝ ╚══════╝╚══════╝       ╚═════╝ ╚══════╝╚═╝     ╚═╝\n\
+$(CROWN)\
+                                           ▟╗▟▙╖▙╖\n\
+                                           ██████║\n$(DAXFERNA)\
+██████╗  █████╗ ██╗  ██╗███████╗███████╗███▇▇▇╗ ▇▇█╗   ██╗ █████╗ \n\
+██╔══██╗██╔══██╗╚██╗██╔╝██╔════╝██╔════╝██╔══██╗████╗  ██║██╔══██╗\n\
+██║  ██║███████║ ╚███╔╝ █████╗  █████╗  ██████╔╝██╔██╗ ██║███████║\n\
+██║  ██║██╔══██║ ██╔██╗ ██╔══╝  ██╔══╝  ██╔══██╗██║╚██╗██║██╔══██║\n\
+██████╔╝██║  ██║██╔╝╚██╗██║     ███████╗██║  ██║██║ ╚████║██║  ██║\n\
+╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝\n\
+$(RESET)"

@@ -1,6 +1,8 @@
 #include "minirt.h"
 
-int	main(void)
+int	main(int argc, char **argv)
 {
-	printf("\nminiRTing...\n");
+	if (argc != 2)
+		free_exit(ERR_ARGUMENTS);
+	parse_file(argv[1]);
 }
