@@ -15,7 +15,8 @@ void	parse_file(char *path)
 		line = ft_get_next_line(fd);
 		if (!line)
 			break ;
-		parse_line(line);
+		if (!ft_str_equals(line, "\n"))
+			parse_line(line);
 		free(line);
 	}
 }
