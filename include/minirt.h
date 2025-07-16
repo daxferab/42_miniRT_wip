@@ -11,6 +11,9 @@
 # define FILE_EXTENSION	".rt"
 # define PATH_SEPARATOR	'/'
 
+# define INT_MAX_COLOR	255
+# define INT_MAX_FOV	180
+
 /******************************************************************************/
 /*                                   TYPES                                    */
 /******************************************************************************/
@@ -20,8 +23,8 @@ typedef enum e_error		t_error;
 typedef struct s_scene		t_scene;
 
 typedef struct s_color		t_color;
-typedef struct s_pos		t_coords;
-typedef struct s_pos		t_vector;
+typedef struct s_v3		t_coords;
+typedef struct s_v3		t_vector;
 
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
@@ -52,9 +55,9 @@ struct s_scene
 	t_ambient	*ambient;
 	t_camera	*camera;
 	t_light		*light;
-	t_sphere	**sphere_list;
-	t_plane		**plane_list;
-	t_cylinder	**cylinder_list;
+	t_sphere	*sphere_list;
+	t_plane		*plane_list;
+	t_cylinder	*cylinder_list;
 };
 
 struct s_color
@@ -64,7 +67,7 @@ struct s_color
 	int	blue;
 };
 
-struct s_pos
+struct s_v3
 {
 	double	x;
 	double	y;
@@ -120,8 +123,8 @@ struct s_cylinder
 /*                                 FUNCTIONS                                  */
 /******************************************************************************/
 
-void	free_exit(t_error error);
-void	parse_file(char *path);
-void	parse_line(char *line);
+void	free_exit(t_scene *scene, t_error error);
+void	parse_file(t_scene *scene, char *path);
+void	parse_line(t_scene *scene, char *line);
 
 #endif

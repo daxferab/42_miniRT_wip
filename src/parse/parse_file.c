@@ -1,27 +1,27 @@
 #include "minirt.h"
 
-static void	check_extension(char *path);
-static void	open_file(char *path, int *fd);
+static void	check_extension(t_scene *scene, char *path);
+static void	open_file(t_scene *scene, char *path, int *fd);
 
-void	parse_file(char *path)
+void	parse_file(t_scene *scene, char *path)
 {
 	char	*line;
 	int		fd;
 
-	check_extension(path);
-	open_file(path, &fd);
+	check_extension(scene, path);
+	open_file(scene, path, &fd);
 	while (true)
 	{
 		line = ft_get_next_line(fd);
 		if (!line)
 			break ;
 		if (!ft_str_equals(line, "\n"))
-			parse_line(line);
+			parse_line(scene, line);
 		free(line);
 	}
 }
 
-static void	check_extension(char *path)
+static void	check_extension(t_scene *scene, char *path)
 {
 	size_t	len_path;
 	size_t	len_ext;
@@ -30,28 +30,28 @@ static void	check_extension(char *path)
 	len_path = ft_strlen(path);
 	len_ext = ft_strlen(FILE_EXTENSION);
 	if (len_path <= len_ext)
-		free_exit(ERR_EXTENSION);
+		free_exit(scene, ERR_EXTENSION);
 	extension = ft_substr(path, len_path - len_ext, len_ext);
 	if (!extension)
-		free_exit(ERR_ALLOC);
+		free_exit(scene, ERR_ALLOC);
 	if (!ft_str_equals(extension, FILE_EXTENSION))
 	{
 		free(extension);
-		free_exit(ERR_EXTENSION);
+		free_exit(scene, ERR_EXTENSION);
 	}
 	free(extension);
 	if (path[len_path - len_ext - 1] == PATH_SEPARATOR)
-		free_exit(ERR_EXTENSION);
+		free_exit(scene, ERR_EXTENSION);
 }
 
-static void	open_file(char *path, int *fd)
+static void	open_file(t_scene *scene, char *path, int *fd)
 {
 	errno = 0;
 	*fd = open(path, O_RDWR);
 	if (errno == EISDIR)
-		free_exit(ERR_OPEN);
+		free_exit(scene, ERR_OPEN);
 	close(*fd);
 	*fd = open(path, O_RDONLY);
 	if (*fd < 0)
-		free_exit(ERR_OPEN);
+		free_exit(scene, ERR_OPEN);
 }
