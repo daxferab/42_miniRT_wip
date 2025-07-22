@@ -191,7 +191,7 @@ void	parse_cylinder(t_scene *scene, char **line)
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
 	if (!read_v3(line, &cylinder->axis))
-		ft_printf("bad diameter\n");
+		ft_printf("bad axis\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
 	if (!read_double(line, &cylinder->diameter))

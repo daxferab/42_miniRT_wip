@@ -23,8 +23,8 @@ typedef enum e_error		t_error;
 typedef struct s_scene		t_scene;
 
 typedef struct s_color		t_color;
-typedef struct s_v3		t_coords;
-typedef struct s_v3		t_vector;
+typedef struct s_v3			t_coords;
+typedef struct s_v3			t_vector;
 
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
