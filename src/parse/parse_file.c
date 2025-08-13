@@ -5,19 +5,18 @@ static void	open_file(t_scene *scene, char *path, int *fd);
 
 void	parse_file(t_scene *scene, char *path)
 {
-	char	*line;
 	int		fd;
 
 	check_extension(scene, path);
 	open_file(scene, path, &fd);
 	while (true)
 	{
-		line = ft_get_next_line(fd);
-		if (!line)
+		scene->line = ft_get_next_line(fd);
+		if (!scene->line)
 			break ;
-		if (!ft_str_equals(line, "\n"))
-			parse_line(scene, line);
-		free(line);
+		if (!ft_str_equals(scene->line, "\n"))
+			parse_line(scene, scene->line);
+		free(scene->line);
 	}
 }
 

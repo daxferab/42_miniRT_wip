@@ -223,12 +223,9 @@ void	parse_line(t_scene *scene, char *line)
 	else if (!ft_strncmp(line, "cy ", 3))
 		parse_type = parse_cylinder;
 	else
-	{
-		ft_printf("bad identifier\n");
-		return ;
-	}
+		free_exit(scene, ERR_IDENTIFIER);
 	skip_identifier(&line);
 	parse_type(scene, &line);
 	if (*line != '\n' && *line != '\0')
-		ft_printf("bad ending %s\n", line);
+		free_exit(scene, ERR_END_LINE);
 }

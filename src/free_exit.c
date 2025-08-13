@@ -8,12 +8,15 @@ void	free_exit(t_scene *scene, t_error error)
 {
 	if (error != OK)
 		ft_printf("Error\n%i\n", error);
+	if (scene->line)
+		ft_printf("On line: %s\n", scene->line);
 	free(scene->ambient);
 	free(scene->camera);
 	free(scene->light);
 	free_plane_list(scene->plane_list);
 	free_sphere_list(scene->sphere_list);
 	free_cylinder_list(scene->cylinder_list);
+	free(scene->line);
 	free(scene);
 	exit(error);
 }

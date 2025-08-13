@@ -44,6 +44,8 @@ enum e_error
 	ERR_ARGUMENTS,
 	ERR_EXTENSION,
 	ERR_OPEN,
+	ERR_IDENTIFIER,
+	ERR_END_LINE,
 };
 
 /******************************************************************************/
@@ -58,6 +60,7 @@ struct s_scene
 	t_sphere	*sphere_list;
 	t_plane		*plane_list;
 	t_cylinder	*cylinder_list;
+	char		*line;
 };
 
 struct s_color

@@ -64,4 +64,5 @@ int	main(int argc, char **argv)
 	parse_file(scene, argv[1]);
 	print_data(scene);
 	free_exit(scene, OK);
+	return (0);
 }
