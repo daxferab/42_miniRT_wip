@@ -44,7 +44,7 @@ void	print_data(t_scene *scene)
 	{
 		printf("\n\tCYLINDER\n");
 		printf("Coords %f %f %f\n", cylinder->coords.x, cylinder->coords.y, cylinder->coords.z);
-		printf("Axis %f %f %f\n", cylinder->coords.x, cylinder->coords.y, cylinder->coords.z);
+		printf("Axis %f %f %f\n", cylinder->axis.x, cylinder->axis.y, cylinder->axis.z);
 		printf("Diameter %f\n", cylinder->diameter);
 		printf("Height %f\n", cylinder->height);
 		printf("Color %i %i %i\n", cylinder->color.red, cylinder->color.green, cylinder->color.blue);

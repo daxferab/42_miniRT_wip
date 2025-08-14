@@ -4,10 +4,39 @@ static void	free_plane_list(t_plane *plane_list);
 static void	free_sphere_list(t_sphere *sphere_list);
 static void	free_cylinder_list(t_cylinder *cylinder_list);
 
+static const char	*g_message[MAX_ERR_CODE] = {
+	"",
+	"Could not allocate memory",
+	"There must be one and only one argument",
+	"The scene file must have .rt extension",
+	"Could not open file",
+	"Invalid or lonely identifier",
+	"Elements of a scene must be separated by one or more line breaks",
+	"Each type of information must be separated by one or more spaces",
+	"Ambient ratio is a double in the range [0.0,1.0]",
+	"Ambient color is 3 integers the range [0,255] separated by commas",
+	"Camera coordinates is 3 doubles separated by commas",
+	"Camera orientation normalized vector is 3 doubles separated by commas",
+	"Camera FOV is an integer in the range [0,180]",
+	"Light coordinates is 3 doubles separated by commas",
+	"Light ratio is a double in the range [0.0,1.0]",
+	"Plane coordinates is 3 doubles separated by commas",
+	"Plane normal normalized vector is 3 doubles separated by commas",
+	"Plane color is 3 integers the range [0,255] separated by commas",
+	"Sphere coordinates is 3 doubles separated by commas",
+	"Sphere diameter is a double",
+	"Sphere color is 3 integers the range [0,255] separated by commas",
+	"Cylinder coordinates is 3 doubles separated by commas",
+	"Cylinder axis normalized vector is 3 doubles separated by commas",
+	"Cylinder diameter is a double",
+	"Cylinder height is a double",
+	"Cylinder color is 3 integers the range [0,255] separated by commas",
+};
+
 void	free_exit(t_scene *scene, t_error error)
 {
 	if (error != OK)
-		ft_printf("Error\n%i\n", error);
+		ft_printf("Error\n%s\n", g_message[error]);
 	if (scene->line)
 		ft_printf("On line: %s\n", scene->line);
 	free(scene->ambient);

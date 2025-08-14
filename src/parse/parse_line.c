@@ -47,7 +47,7 @@ bool	read_double(char **line, double *result)
 
 bool	read_double_ratio(char **line, double *result)
 {
-	if (read_double(line, result))
+	if (!read_double(line, result))
 		return (false);
 	if (*result < 0.0 || *result > 1.0)
 		return (false);
@@ -113,11 +113,11 @@ void	parse_ambient(t_scene *scene, char **line)
 	if (!scene->ambient)
 		free_exit(scene, ERR_ALLOC);
 	if (!read_double_ratio(line, &scene->ambient->ratio))
-		ft_printf("bad double\n");
+		free_exit(scene, ERR_AMB_RATIO);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_color(line, &scene->ambient->color))
-		ft_printf("bad color\n");
+		free_exit(scene, ERR_AMB_COLOR);
 }
 
 void	parse_camera(t_scene *scene, char **line)
@@ -126,15 +126,15 @@ void	parse_camera(t_scene *scene, char **line)
 	if (!scene->camera)
 		free_exit(scene, ERR_ALLOC);
 	if (!read_v3(line, &scene->camera->coords))
-		ft_printf("bad coords\n");
+		free_exit(scene, ERR_CAM_COORDS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_v3_normalized(line, &scene->camera->orientation))
-		ft_printf("bad orientation\n");
+		free_exit(scene, ERR_CAM_ORIENTATION);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_int_maxed(line, &scene->camera->fov, INT_MAX_FOV))
-		ft_printf("bad fov\n");
+		free_exit(scene, ERR_CAM_FOV);
 }
 
 void	parse_light(t_scene *scene, char **line)
@@ -143,11 +143,11 @@ void	parse_light(t_scene *scene, char **line)
 	if (!scene->light)
 		free_exit(scene, ERR_ALLOC);
 	if (!read_v3(line, &scene->light->coords))
-		ft_printf("bad coords\n");
+		free_exit(scene, ERR_LIG_COORDS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_double_ratio(line, &scene->light->ratio))
-		ft_printf("bad ratio\n");
+		free_exit(scene, ERR_LIG_RATIO);
 }
 
 void	parse_plane(t_scene *scene, char **line)
@@ -163,15 +163,15 @@ void	parse_plane(t_scene *scene, char **line)
 		plane->next = scene->plane_list;
 	scene->plane_list = plane;
 	if (!read_v3(line, &plane->coords))
-		ft_printf("bad coords\n");
+		free_exit(scene, ERR_PLA_COORDS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_v3_normalized(line, &plane->normal))
-		ft_printf("bad normal\n");
+		free_exit(scene, ERR_PLA_NORMAL);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_color(line, &plane->color))
-		ft_printf("bad color\n");
+		free_exit(scene, ERR_PLA_COLOR);
 }
 
 void	parse_sphere(t_scene *scene, char **line)
@@ -184,15 +184,15 @@ void	parse_sphere(t_scene *scene, char **line)
 	sphere->next = scene->sphere_list;
 	scene->sphere_list = sphere;
 	if (!read_v3(line, &sphere->coords))
-		ft_printf("bad coords\n");
+		free_exit(scene, ERR_SPH_COORDS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_double(line, &sphere->diameter))
-		ft_printf("bad diameter\n");
+		free_exit(scene, ERR_SPH_DIAMETER);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_color(line, &sphere->color))
-		ft_printf("bad color\n");
+		free_exit(scene, ERR_SPH_COLOR);
 }
 
 void	parse_cylinder(t_scene *scene, char **line)
@@ -205,29 +205,30 @@ void	parse_cylinder(t_scene *scene, char **line)
 	cylinder->next = scene->cylinder_list;
 	scene->cylinder_list = cylinder;
 	if (!read_v3(line, &cylinder->coords))
-		ft_printf("bad coords\n");
+		free_exit(scene, ERR_CYL_COORDS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_v3_normalized(line, &cylinder->axis))
-		ft_printf("bad axis\n");
+		free_exit(scene, ERR_CYL_AXIS);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_double(line, &cylinder->diameter))
-		ft_printf("bad diameter\n");
+		free_exit(scene, ERR_CYL_DIAMETER);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_double(line, &cylinder->height))
-		ft_printf("bad height\n");
+		free_exit(scene, ERR_CYL_HEIGHT);
 	if (!skip_spaces(line))
-		ft_printf("bad spaces\n");
+		free_exit(scene, ERR_SPACES);
 	if (!read_color(line, &cylinder->color))
-		ft_printf("bad color\n");
+		free_exit(scene, ERR_CYL_COLOR);
 }
 
 void	parse_line(t_scene *scene, char *line)
 {
 	void	(*parse_type)(t_scene *, char **);
 
+	parse_type = NULL;
 	if (!ft_strncmp(line, "A ", 2))
 		parse_type = parse_ambient;
 	else if (!ft_strncmp(line, "C ", 2))
