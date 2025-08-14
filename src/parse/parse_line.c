@@ -45,6 +45,15 @@ bool	read_double(char **line, double *result)
 	return (true);
 }
 
+bool	read_double_ratio(char **line, double *result)
+{
+	if (read_double(line, result))
+		return (false);
+	if (*result < 0.0 || *result > 1.0)
+		return (false);
+	return (true);
+}
+
 bool	read_int_maxed(char **line, int *result, int max_range)
 {
 	if (!ft_isdigit(**line))
@@ -89,12 +98,21 @@ bool	read_v3(char **line, struct s_v3 *v3)
 	return (true);
 }
 
+bool	read_v3_normalized(char **line, struct s_v3 *v3)
+{
+	if (!read_v3(line, v3))
+		return (false);
+	if (sqrt(pow(v3->x, 2) + pow(v3->y, 2) + pow(v3->z, 2)) != 1)
+		return (false);
+	return (true);
+}
+
 void	parse_ambient(t_scene *scene, char **line)
 {
 	scene->ambient = malloc(sizeof(t_ambient));
 	if (!scene->ambient)
 		free_exit(scene, ERR_ALLOC);
-	if (!read_double(line, &scene->ambient->ratio))
+	if (!read_double_ratio(line, &scene->ambient->ratio))
 		ft_printf("bad double\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
@@ -111,7 +129,7 @@ void	parse_camera(t_scene *scene, char **line)
 		ft_printf("bad coords\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
-	if (!read_v3(line, &scene->camera->orientation))
+	if (!read_v3_normalized(line, &scene->camera->orientation))
 		ft_printf("bad orientation\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
@@ -128,7 +146,7 @@ void	parse_light(t_scene *scene, char **line)
 		ft_printf("bad coords\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
-	if (!read_double(line, &scene->light->ratio))
+	if (!read_double_ratio(line, &scene->light->ratio))
 		ft_printf("bad ratio\n");
 }
 
@@ -148,8 +166,8 @@ void	parse_plane(t_scene *scene, char **line)
 		ft_printf("bad coords\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
-	if (!read_v3(line, &plane->normal))
-		ft_printf("bad nomal\n");
+	if (!read_v3_normalized(line, &plane->normal))
+		ft_printf("bad normal\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
 	if (!read_color(line, &plane->color))
@@ -190,7 +208,7 @@ void	parse_cylinder(t_scene *scene, char **line)
 		ft_printf("bad coords\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
-	if (!read_v3(line, &cylinder->axis))
+	if (!read_v3_normalized(line, &cylinder->axis))
 		ft_printf("bad axis\n");
 	if (!skip_spaces(line))
 		ft_printf("bad spaces\n");
