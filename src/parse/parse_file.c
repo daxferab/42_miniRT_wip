@@ -18,6 +18,12 @@ void	parse_file(t_scene *scene, char *path)
 			parse_line(scene, scene->line);
 		free(scene->line);
 	}
+	if (!scene->ambient)
+		free_exit(scene, ERR_AMB_NONE);
+	if (!scene->camera)
+		free_exit(scene, ERR_CAM_NONE);
+	if (!scene->light)
+		free_exit(scene, ERR_LIG_NONE);
 }
 
 static void	check_extension(t_scene *scene, char *path)

@@ -109,6 +109,8 @@ bool	read_v3_normalized(char **line, struct s_v3 *v3)
 
 void	parse_ambient(t_scene *scene, char **line)
 {
+	if (scene->ambient)
+		free_exit(scene, ERR_AMB_SEVERAL);
 	scene->ambient = malloc(sizeof(t_ambient));
 	if (!scene->ambient)
 		free_exit(scene, ERR_ALLOC);
@@ -122,6 +124,8 @@ void	parse_ambient(t_scene *scene, char **line)
 
 void	parse_camera(t_scene *scene, char **line)
 {
+	if (scene->camera)
+		free_exit(scene, ERR_CAM_SEVERAL);
 	scene->camera = malloc(sizeof(t_camera));
 	if (!scene->camera)
 		free_exit(scene, ERR_ALLOC);
@@ -139,6 +143,8 @@ void	parse_camera(t_scene *scene, char **line)
 
 void	parse_light(t_scene *scene, char **line)
 {
+	if (scene->light)
+		free_exit(scene, ERR_LIG_SEVERAL);
 	scene->light = malloc(sizeof(t_light));
 	if (!scene->light)
 		free_exit(scene, ERR_ALLOC);
