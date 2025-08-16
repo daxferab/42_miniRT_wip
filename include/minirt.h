@@ -154,7 +154,32 @@ struct s_cylinder
 /******************************************************************************/
 
 void	free_exit(t_scene *scene, t_error error);
+
+/******************************************************************************/
+/*                             FUNCTIONS - PARSE                              */
+/******************************************************************************/
+
 void	parse_file(t_scene *scene, char *path);
 void	parse_line(t_scene *scene, char *line);
+
+void	parse_ambient(t_scene *scene, char **line);
+void	parse_camera(t_scene *scene, char **line);
+void	parse_light(t_scene *scene, char **line);
+
+void	parse_plane(t_scene *scene, char **line);
+void	parse_sphere(t_scene *scene, char **line);
+void	parse_cylinder(t_scene *scene, char **line);
+
+/******************************************************************************/
+/*                           FUNCTIONS - PARSE/READ                           */
+/******************************************************************************/
+
+bool	read_color(char **line, t_color *color);
+bool	read_double_ratio(char **line, double *result);
+bool	read_double(char **line, double *result);
+bool	read_int_maxed(char **line, int *result, int max_range);
+bool	read_v3_normalized(char **line, struct s_v3 *v3);
+bool	read_v3(char **line, struct s_v3 *v3);
+bool	skip_spaces(char **line);
 
 #endif

@@ -26,24 +26,40 @@ MLX_FLAG := -L $(MLX_BUILD) -l mlx42 -l glfw -l dl -l m -pthread
 
 #FILES
 
-DIRECTORIES :=	\
-				parse\
-
 SRC_DIR := src/
 OBJ_DIR := obj/
 INC_DIR := include/
 HEADER := $(INC_DIR)/minirt.h
 
+VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
+			parse\
+			parse/read\
+			)
+
 SOURCES :=	\
 			minirt.c\
 			free_exit.c\
-			$(addprefix parse/,\
-				parse_file.c\
-				parse_line.c\
-			)\
+#parse
+SOURCES +=	\
+			parse_ambient.c\
+			parse_camera.c\
+			parse_cylinder.c\
+			parse_file.c\
+			parse_light.c\
+			parse_line.c\
+			parse_plane.c\
+			parse_sphere.c\
+#parse/read
+SOURCES +=	\
+			read_color.c\
+			read_double_ratio.c\
+			read_double.c\
+			read_int_maxed.c\
+			read_v3_normalized.c\
+			read_v3.c\
+			skip_spaces.c\
 
 OBJECTS := $(addprefix $(OBJ_DIR), $(SOURCES:.c=.o))
-SOURCES := $(addprefix $(SRC_DIR), $(SOURCES))
 
 #COLOURS
 
@@ -82,11 +98,11 @@ $(MLX_PATH):
 	git clone https://github.com/codam-coding-college/MLX42.git
 	@$(MAKE) msg_mlx_clone_end
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c $(HEADER) | $(OBJ_DIR)
+$(OBJ_DIR)%.o: %.c $(HEADER) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_PATH) -I $(MLX_INCLUDE) -c $< -o $@
 
 $(OBJ_DIR):
-	$(MKDIR) $(addprefix $(OBJ_DIR),$(DIRECTORIES))
+	$(MKDIR) $(OBJ_DIR)
 	
 .PHONY: a all
 a: all
