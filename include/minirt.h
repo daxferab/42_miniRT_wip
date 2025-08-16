@@ -2,6 +2,7 @@
 # define MINIRT_H
 
 # include "libft.h"
+# include "MLX42.h"
 # include <errno.h>
 # include <math.h>
 
@@ -72,6 +73,7 @@ enum e_error
 	ERR_CYL_DIAMETER,
 	ERR_CYL_HEIGHT,
 	ERR_CYL_COLOR,
+	ERR_MLX_INIT,
 	MAX_ERR_CODE,
 };
 
@@ -88,6 +90,7 @@ struct s_scene
 	t_plane		*plane_list;
 	t_cylinder	*cylinder_list;
 	char		*line;
+	mlx_t		*mlx;
 };
 
 struct s_color
@@ -154,6 +157,13 @@ struct s_cylinder
 /******************************************************************************/
 
 void	free_exit(t_scene *scene, t_error error);
+
+/******************************************************************************/
+/*                              FUNCTIONS - MLX                               */
+/******************************************************************************/
+
+void	close_hook(void *param);
+void	key_hook(mlx_key_data_t keydata, void *param);
 
 /******************************************************************************/
 /*                             FUNCTIONS - PARSE                              */

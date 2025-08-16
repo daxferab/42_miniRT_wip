@@ -32,6 +32,7 @@ INC_DIR := include/
 HEADER := $(INC_DIR)/minirt.h
 
 VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
+			mlx\
 			parse\
 			parse/read\
 			)
@@ -39,6 +40,10 @@ VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
 SOURCES :=	\
 			minirt.c\
 			free_exit.c\
+#mlx
+SOURCES +=	\
+			close_hook.c\
+			key_hook.c\
 #parse
 SOURCES +=	\
 			parse_ambient.c\
@@ -133,9 +138,6 @@ e: exec
 exec: all
 	-./$(NAME) scenes/minimalist.rt
 
-.PHONY: run
-run: levels fclean
-
 .PHONY: n norminette normi
 n: norminette
 norminette:
@@ -150,8 +152,8 @@ valgrind:
 	@$(MAKE) CFLAGS= valgrind_no_flags
 valgrind_no_flags: clean $(LIBFT) $(OBJECTS) | $(VALGRIND_DIR)
 	@$(CC) $(CFLAGS) $(OBJECTS) $(LIBFT_FLAG) $(MLX_FLAG) -o $(NAME)
-	@-valgrind --leak-check=full --show-leak-kinds=all --log-file=$(VALGRIND_DIR)$$(date +"%y%m%d%H%M%S").txt ././$(NAME) $(addprefix $(MAP_DIRECTORY), $(addsuffix $(MAP_EXTENSION), $(MAP)))
-	@echo "$(BLUE) $$(grep "ERROR SUMMARY" $(VALGRIND_DIR)/$$(ls valgrind | tail -1))"
+	@-valgrind --leak-check=full --show-leak-kinds=all --log-file=$(VALGRIND_DIR)$$(date +"%y%m%d%H%M%S").txt ././$(NAME) scenes/minimalist.rt
+	@echo "$(BLUE)$$(grep -e "ERROR SUMMARY" -e "lost:" -e "reachable:" $(VALGRIND_DIR)/$$(ls valgrind | tail -1))"
 	@$(MAKE) clean
 
 $(VALGRIND_DIR):

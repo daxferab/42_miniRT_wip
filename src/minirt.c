@@ -63,6 +63,12 @@ int	main(int argc, char **argv)
 		free_exit(scene, ERR_ALLOC);
 	parse_file(scene, argv[1]);
 	print_data(scene);
-	free_exit(scene, OK);
+	scene->mlx = mlx_init(512, 512, "MiniRT", false);
+	if (!scene->mlx)
+		free_exit(scene, OK);
+	mlx_close_hook(scene->mlx, &close_hook, scene);
+	mlx_key_hook(scene->mlx, &key_hook, scene);
+	// mlx_loop_hook(scene->mlx, &loop_hook, scene);
+	mlx_loop(scene->mlx);
 	return (0);
 }

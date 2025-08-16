@@ -37,6 +37,7 @@ static const char	*g_message[MAX_ERR_CODE] = {
 	"Cylinder diameter is a double",
 	"Cylinder height is a double",
 	"Cylinder color is 3 integers the range [0,255] separated by commas",
+	"Could not create the window",
 };
 
 void	free_exit(t_scene *scene, t_error error)
@@ -52,6 +53,8 @@ void	free_exit(t_scene *scene, t_error error)
 	free_sphere_list(scene->sphere_list);
 	free_cylinder_list(scene->cylinder_list);
 	free(scene->line);
+	if (scene->mlx)
+		mlx_terminate(scene->mlx);
 	free(scene);
 	exit(error);
 }
