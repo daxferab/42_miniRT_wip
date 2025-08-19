@@ -185,6 +185,7 @@ void	parse_cylinder(t_scene *scene, char **line);
 /******************************************************************************/
 
 bool	read_color(char **line, t_color *color);
+bool	read_double_positive(char **line, double *result);
 bool	read_double_ratio(char **line, double *result);
 bool	read_double(char **line, double *result);
 bool	read_int_maxed(char **line, int *result, int max_range);

@@ -57,6 +57,7 @@ SOURCES +=	\
 #parse/read
 SOURCES +=	\
 			read_color.c\
+			read_double_positive.c\
 			read_double_ratio.c\
 			read_double.c\
 			read_int_maxed.c\

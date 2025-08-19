@@ -17,11 +17,11 @@ void	parse_cylinder(t_scene *scene, char **line)
 		free_exit(scene, ERR_CYL_AXIS);
 	if (!skip_spaces(line))
 		free_exit(scene, ERR_SPACES);
-	if (!read_double(line, &cylinder->diameter))
+	if (!read_double_positive(line, &cylinder->diameter))
 		free_exit(scene, ERR_CYL_DIAMETER);
 	if (!skip_spaces(line))
 		free_exit(scene, ERR_SPACES);
-	if (!read_double(line, &cylinder->height))
+	if (!read_double_positive(line, &cylinder->height))
 		free_exit(scene, ERR_CYL_HEIGHT);
 	if (!skip_spaces(line))
 		free_exit(scene, ERR_SPACES);
