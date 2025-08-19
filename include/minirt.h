@@ -27,6 +27,7 @@ typedef struct s_scene		t_scene;
 typedef struct s_color		t_color;
 typedef struct s_v3			t_coords;
 typedef struct s_v3			t_vector;
+typedef struct s_v3			t_v3;
 
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
@@ -192,5 +193,16 @@ bool	read_int_maxed(char **line, int *result, int max_range);
 bool	read_v3_normalized(char **line, struct s_v3 *v3);
 bool	read_v3(char **line, struct s_v3 *v3);
 bool	skip_spaces(char **line);
+
+/******************************************************************************/
+/*                             FUNCTIONS - VECTOR                             */
+/******************************************************************************/
+
+t_v3	v3_add(t_v3 a, t_v3 b);
+double	v3_dot_product(t_v3 a, t_v3 b);
+double	v3_magnitude(t_v3 v3);
+t_v3	v3_normalize(t_v3 v3);
+t_v3	v3_scale(t_v3	v3, double scale);
+t_v3	v3_substract(t_v3 a, t_v3 b);
 
 #endif

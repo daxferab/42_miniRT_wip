@@ -35,6 +35,7 @@ VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
 			mlx\
 			parse\
 			parse/read\
+			vector\
 			)
 
 SOURCES :=	\
@@ -64,6 +65,14 @@ SOURCES +=	\
 			read_v3_normalized.c\
 			read_v3.c\
 			skip_spaces.c\
+#vector
+SOURCES +=	\
+			v3_add.c\
+			v3_dot_product.c\
+			v3_magnitude.c\
+			v3_normalize.c\
+			v3_scale.c\
+			v3_substract.c\
 
 OBJECTS := $(addprefix $(OBJ_DIR), $(SOURCES:.c=.o))
 
