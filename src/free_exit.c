@@ -38,6 +38,8 @@ static const char	*g_message[MAX_ERR_CODE] = {
 	"Cylinder height must be a positive double",
 	"Cylinder color must be 3 integers the range [0,255] split by commas",
 	"Could not create the window",
+	"Could not create the image",
+	"Could not print the image in the window",
 };
 
 void	free_exit(t_scene *scene, t_error error)

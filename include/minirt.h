@@ -75,6 +75,8 @@ enum e_error
 	ERR_CYL_HEIGHT,
 	ERR_CYL_COLOR,
 	ERR_MLX_INIT,
+	ERR_MLX_IMG,
+	ERR_MLX_PRINT,
 	MAX_ERR_CODE,
 };
 
@@ -166,6 +168,7 @@ void	free_exit(t_scene *scene, t_error error);
 
 void	close_hook(void *param);
 void	key_hook(mlx_key_data_t keydata, void *param);
+void	loop_hook(void *param);
 
 /******************************************************************************/
 /*                             FUNCTIONS - PARSE                              */
@@ -194,6 +197,12 @@ bool	read_int_maxed(char **line, int *result, int max_range);
 bool	read_v3_normalized(char **line, struct s_v3 *v3);
 bool	read_v3(char **line, struct s_v3 *v3);
 bool	skip_spaces(char **line);
+
+/******************************************************************************/
+/*                             FUNCTIONS - RENDER                             */
+/******************************************************************************/
+
+void	render(t_scene *scene);
 
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */

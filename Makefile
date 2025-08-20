@@ -35,6 +35,7 @@ VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
 			mlx\
 			parse\
 			parse/read\
+			render\
 			vector\
 			)
 
@@ -45,6 +46,7 @@ SOURCES :=	\
 SOURCES +=	\
 			close_hook.c\
 			key_hook.c\
+			loop_hook.c\
 #parse
 SOURCES +=	\
 			parse_ambient.c\
@@ -65,6 +67,9 @@ SOURCES +=	\
 			read_v3_normalized.c\
 			read_v3.c\
 			skip_spaces.c\
+#render
+SOURCES +=	\
+			render.c\
 #vector
 SOURCES +=	\
 			v3_add.c\
@@ -144,18 +149,20 @@ re: fclean all
 
 #EXTRA RULES
 
-.PHONY: e exec
+.PHONY: e exec axis
 e: exec
 exec: all
 	-./$(NAME) scenes/minimalist.rt
+axis: all
+	-./$(NAME) scenes/axis.rt
 
 .PHONY: n norminette normi
 n: norminette
 norminette:
-	@echo "norminette $(SRC_DIR) $(LIBFT_PATH) | grep Error\n"
-	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Everything OK!$(RESET)"; fi
+	@echo "norminette $(SRC_DIR) $(INC_DIR) $(LIBFT_PATH) | grep Error\n"
+	@if norminette $(SRC_DIR) $(INC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "$(RED)$$(norminette $(SRC_DIR) $(INC_DIR) $(LIBFT_PATH) | grep "Error" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Everything OK!$(RESET)"; fi
 normi:
-	@if norminette $(SRC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "\n$(RED)$$(norminette $(SRC_DIR) $(LIBFT_PATH) | grep "Error" | grep -v -e "TOO_MANY_FUNCS" -e "WRONG_SCOPE_COMMENT" -e "EMPTY_LINE_FUNCTION" -e "LINE_TOO_LONG" -e "TOO_MANY_LINES" -e "CONSECUTIVE_NEWLINES" -e "INVALID_HEADER" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Run full norminette!$(RESET)"; fi
+	@if norminette $(SRC_DIR) $(INC_DIR) $(LIBFT_PATH) | grep -q "Error"; then echo "\n$(RED)$$(norminette $(SRC_DIR) $(INC_DIR) $(LIBFT_PATH) | grep "Error" | grep -v -e "TOO_MANY_FUNCS" -e "WRONG_SCOPE_COMMENT" -e "EMPTY_LINE_FUNCTION" -e "LINE_TOO_LONG" -e "TOO_MANY_LINES" -e "CONSECUTIVE_NEWLINES" -e "INVALID_HEADER" | sed -z 's/\nError/\n\$(YELLOW)  Error/g' | sed -z 's/\n/\n\$(RED)/g')$(RESET)"; else echo "$(GREEN)Run full norminette!$(RESET)"; fi
 
 .PHONY: v valgrind valgrind_no_flags
 v: valgrind
