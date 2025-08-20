@@ -52,6 +52,60 @@ void	print_data(t_scene *scene)
 	}
 }
 
+void	draw(t_scene *scene)
+{
+	double width = 512;
+	double height = 512;
+	double fov = 120;
+
+	double scale = tan(fov/2 * 3.14159265358979323846 / 180);
+	double step = 2.0 / width * scale;
+	double start_x = -scale + scale / width;
+	double start_y = scale / width * height - scale / width;
+	double iter_y = start_y;
+
+	double i = 0;
+	while (i < width)
+	{
+		double iter_x = start_x;
+		double j = 0;
+		while (j < height)
+		{
+			t_v3 forward = v3_normalize(scene->camera->orientation);
+			t_v3 right = v3_normalize(v3_cross_product(forward, (t_v3){0,0,1}));
+			t_v3 up = v3_normalize(v3_cross_product(forward, right));
+			t_v3 rd = v3_normalize(v3_add(v3_add(v3_scale(right,iter_x), v3_scale(up,iter_y)), forward));
+			float closest = 99999999999999999;
+			uint32_t color;
+			t_plane *iter = scene->plane_list;
+			while (iter)
+			{
+				float intersection = v3_dot_product(v3_substract(iter->coords, scene->camera->coords), iter->normal) / v3_dot_product(rd, iter->normal);
+				if (intersection > 0 && intersection < closest)
+				{
+					closest = intersection;
+					color = iter->color.red * pow(256, 3) + iter->color.green * pow(256, 2) + iter->color.blue * pow(256, 1) + 255;
+				}
+				iter = iter->next;
+			}
+			iter_x += step;
+			j++;
+			mlx_put_pixel(scene->img, i, j, color);
+		}
+		iter_y -= step;
+		i++;
+	}
+}
+
+void	loop_hook(void *param)
+{
+	t_scene	*scene;
+
+	scene = param;
+	draw(scene);
+	mlx_image_to_window(scene->mlx, scene->img, 0, 0);//protect
+}
+
 int	main(int argc, char **argv)
 {
 	t_scene	*scene;
@@ -66,9 +120,10 @@ int	main(int argc, char **argv)
 	scene->mlx = mlx_init(512, 512, "MiniRT", false);
 	if (!scene->mlx)
 		free_exit(scene, OK);
+	scene->img = mlx_new_image(scene->mlx, 512, 512);//protect
 	mlx_close_hook(scene->mlx, &close_hook, scene);
 	mlx_key_hook(scene->mlx, &key_hook, scene);
-	// mlx_loop_hook(scene->mlx, &loop_hook, scene);
+	mlx_loop_hook(scene->mlx, &loop_hook, scene);
 	mlx_loop(scene->mlx);
 	return (0);
 }

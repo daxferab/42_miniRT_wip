@@ -92,6 +92,7 @@ struct s_scene
 	t_cylinder	*cylinder_list;
 	char		*line;
 	mlx_t		*mlx;
+	mlx_image_t	*img;
 };
 
 struct s_color
