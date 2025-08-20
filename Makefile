@@ -69,6 +69,7 @@ SOURCES +=	\
 SOURCES +=	\
 			v3_add.c\
 			v3_dot_product.c\
+			v3_cross_product.c\
 			v3_magnitude.c\
 			v3_normalize.c\
 			v3_scale.c\

@@ -199,6 +199,7 @@ bool	skip_spaces(char **line);
 /******************************************************************************/
 
 t_v3	v3_add(t_v3 a, t_v3 b);
+t_v3	v3_cross_product(t_v3 a, t_v3 b);
 double	v3_dot_product(t_v3 a, t_v3 b);
 double	v3_magnitude(t_v3 v3);
 t_v3	v3_normalize(t_v3 v3);
