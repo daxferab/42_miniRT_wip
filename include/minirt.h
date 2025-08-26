@@ -16,6 +16,14 @@
 # define INT_MAX_COLOR	255
 # define INT_MAX_FOV	180
 
+# define WIDTH	1080
+# define HEIGHT	720
+
+# ifndef M_PI
+#  define M_PI 3.14159265358979323846
+# endif
+# define DEG_TO_RAD(x)	(x * M_PI / 180)
+
 /******************************************************************************/
 /*                                   TYPES                                    */
 /******************************************************************************/
@@ -84,19 +92,6 @@ enum e_error
 /*                                  STRUCTS                                   */
 /******************************************************************************/
 
-struct s_scene
-{
-	t_ambient	*ambient;
-	t_camera	*camera;
-	t_light		*light;
-	t_sphere	*sphere_list;
-	t_plane		*plane_list;
-	t_cylinder	*cylinder_list;
-	char		*line;
-	mlx_t		*mlx;
-	mlx_image_t	*img;
-};
-
 struct s_color
 {
 	int	red;
@@ -121,6 +116,10 @@ struct s_camera
 {
 	t_coords	coords;
 	t_vector	orientation;
+	t_vector	up;
+	t_vector	right;
+	t_vector	forward;
+	t_vector	rightward;
 	int			fov;
 };
 
@@ -154,6 +153,20 @@ struct s_cylinder
 	double		height;
 	t_color		color;
 	t_cylinder	*next;
+};
+
+struct s_scene
+{
+	t_ambient	*ambient;
+	t_camera	*camera;
+	t_light		*light;
+	t_sphere	*sphere_list;
+	t_plane		*plane_list;
+	t_cylinder	*cylinder_list;
+	char		*line;
+	mlx_t		*mlx;
+	mlx_image_t	*img;
+	t_vector	movement;
 };
 
 /******************************************************************************/
@@ -203,6 +216,8 @@ bool	skip_spaces(char **line);
 /******************************************************************************/
 
 void	render(t_scene *scene);
+void	move_camera(t_scene *scene);
+void	update_camera_axis(t_camera *cam);
 
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */

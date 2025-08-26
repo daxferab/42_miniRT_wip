@@ -2,27 +2,20 @@
 
 void	render(t_scene *scene)
 {
-	double width = 512;
-	double height = 512;
-	double fov = 120;
-
-	double scale = tan(fov / 2 * 3.14159265358979323846 / 180);
-	double step = 2.0 / width * scale;
-	double start_x = -scale + scale / width;
-	double start_y = scale / width * height - scale / width;
+	double scale = tan(DEG_TO_RAD(scene->camera->fov / 2));
+	double step = 2.0 / WIDTH * scale;
+	double start_x = -scale + scale / WIDTH;
+	double start_y = scale / WIDTH * HEIGHT - scale / WIDTH;
 	double iter_y = start_y;
 
 	double i = 0;
-	while (i < width)
+	while (i < WIDTH)
 	{
 		double iter_x = start_x;
 		double j = 0;
-		while (j < height)
+		while (j < HEIGHT)
 		{
-			t_v3 forward = v3_normalize(scene->camera->orientation);
-			t_v3 right = v3_normalize(v3_cross_product(forward, (t_v3){0, 0, 1}));
-			t_v3 up = v3_normalize(v3_cross_product(forward, right));
-			t_v3 rd = v3_normalize(v3_add(v3_add(v3_scale(right, iter_x), v3_scale(up, iter_y)), forward));
+			t_v3 rd = v3_normalize(v3_add(v3_add(v3_scale(scene->camera->right, iter_x), v3_scale(scene->camera->up, iter_y)), scene->camera->orientation));
 			float closest = 99999999999999999;
 			uint32_t color;
 			t_plane *plane = scene->plane_list;

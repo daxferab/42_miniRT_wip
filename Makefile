@@ -69,7 +69,9 @@ SOURCES +=	\
 			skip_spaces.c\
 #render
 SOURCES +=	\
+			move_camera.c\
 			render.c\
+			update_camera_axis.c\
 #vector
 SOURCES +=	\
 			v3_add.c\
