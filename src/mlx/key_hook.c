@@ -21,8 +21,8 @@ void	key_hook(mlx_key_data_t keydata, void *param)
 		scene->movement = v3_substract(scene->movement, scene->camera->rightward);
 	if ((keydata.key == MLX_KEY_SPACE && keydata.action == MLX_PRESS)
 		|| (keydata.key == MLX_KEY_LEFT_SHIFT && keydata.action == MLX_RELEASE))
-		scene->movement = v3_add(scene->movement, (t_v3){0, 1, 0});
+		scene->movement = v3_add(scene->movement, scene->world_up);
 	if ((keydata.key == MLX_KEY_LEFT_SHIFT && keydata.action == MLX_PRESS)
 		|| (keydata.key == MLX_KEY_SPACE && keydata.action == MLX_RELEASE))
-		scene->movement = v3_substract(scene->movement, (t_v3){0, 1, 0});
+		scene->movement = v3_substract(scene->movement, scene->world_up);
 }

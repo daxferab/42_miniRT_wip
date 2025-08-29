@@ -1,6 +1,6 @@
 #include "minirt.h"
 
-static void	init(t_scene	*scene);
+static void	init(t_scene *scene);
 
 int	main(int argc, char **argv)
 {
@@ -20,7 +20,7 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
-static void	init(t_scene	*scene)
+static void	init(t_scene *scene)
 {
 	scene->mlx = mlx_init(WIDTH, HEIGHT, "MiniRT", false);
 	if (!scene->mlx)
@@ -28,5 +28,6 @@ static void	init(t_scene	*scene)
 	scene->img = mlx_new_image(scene->mlx, WIDTH, HEIGHT);
 	if (!scene->img)
 		free_exit(scene, ERR_MLX_IMG);
-	update_camera_axis(scene->camera);
+	scene->world_up = v3_build(0, 1, 0);
+	update_camera_axis(scene, scene->camera);
 }

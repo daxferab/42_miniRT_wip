@@ -5,15 +5,15 @@ double	deg_to_rad(double x)
 	return (x * M_PI / 180);
 }
 
-t_v3	get_ray_direction(t_scene *scene, int i, int j)
+t_vector	get_ray_direction(t_scene *scene, int i, int j)
 {
 	double x = (2 * i - WIDTH + 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
 	double y = (-2 * j + HEIGHT - 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
-	t_v3 rd = v3_normalize(v3_add(v3_add(v3_scale(scene->camera->right, x), v3_scale(scene->camera->up, y)), scene->camera->orientation));
+	t_vector rd = v3_normalize(v3_add(v3_add(v3_scale(scene->camera->right, x), v3_scale(scene->camera->up, y)), scene->camera->orientation));
 	return (rd);
 }
 
-void	intersect_planes(t_scene *scene, t_v3 rd, double *closest, uint32_t *color)
+void	intersect_planes(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
@@ -28,6 +28,25 @@ void	intersect_planes(t_scene *scene, t_v3 rd, double *closest, uint32_t *color)
 	}
 }
 
+void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
+{
+	t_sphere *sphere = scene->sphere_list;
+	while (sphere)
+	{
+		t_vector k = v3_substract(scene->camera->coords, sphere->coords);
+		double disc = pow(v3_dot_product(k, rd), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		double intersection = -1;
+		if (disc >= 0)
+			intersection = -v3_dot_product(k, rd) - sqrt(disc);
+		if (intersection > 0 && intersection < *closest)
+		{
+			*closest = intersection;
+			*color = sphere->color.red * pow(256, 3) + sphere->color.green * pow(256, 2) + sphere->color.blue * pow(256, 1) + 255;
+		}
+		sphere = sphere->next;
+	}
+}
+
 void	render(t_scene *scene)
 {
 	double i = 0;
@@ -36,10 +55,11 @@ void	render(t_scene *scene)
 		double j = 0;
 		while (j < HEIGHT)
 		{
-			t_v3 rd = get_ray_direction(scene, i, j);
+			t_vector rd = get_ray_direction(scene, i, j);
 			double closest = 99999999999999999;
 			uint32_t color;
 			intersect_planes(scene, rd, &closest, &color);
+			intersect_spheres(scene, rd, &closest, &color);
 			mlx_put_pixel(scene->img, i, j, color);
 			j++;
 		}

@@ -166,6 +166,7 @@ struct s_scene
 	mlx_t		*mlx;
 	mlx_image_t	*img;
 	t_vector	movement;
+	t_vector	world_up;
 };
 
 /******************************************************************************/
@@ -216,13 +217,14 @@ bool	skip_spaces(char **line);
 
 void	render(t_scene *scene);
 void	move_camera(t_scene *scene);
-void	update_camera_axis(t_camera *cam);
+void	update_camera_axis(t_scene *scene, t_camera *cam);
 
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */
 /******************************************************************************/
 
 t_v3	v3_add(t_v3 a, t_v3 b);
+t_v3	v3_build(double x, double y, double z);
 t_v3	v3_cross_product(t_v3 a, t_v3 b);
 double	v3_dot_product(t_v3 a, t_v3 b);
 double	v3_magnitude(t_v3 v3);
