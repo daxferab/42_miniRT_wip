@@ -1,10 +1,5 @@
 #include "minirt.h"
 
-double	deg_to_rad(double x)
-{
-	return (x * M_PI / 180);
-}
-
 t_vector	get_ray_direction(t_scene *scene, int i, int j)
 {
 	double x = (2 * i - WIDTH + 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
@@ -56,8 +51,8 @@ void	render(t_scene *scene)
 		while (j < HEIGHT)
 		{
 			t_vector rd = get_ray_direction(scene, i, j);
-			double closest = 99999999999999999;
-			uint32_t color;
+			double closest = 99999999999999;
+			uint32_t color = 255;
 			intersect_planes(scene, rd, &closest, &color);
 			intersect_spheres(scene, rd, &closest, &color);
 			mlx_put_pixel(scene->img, i, j, color);

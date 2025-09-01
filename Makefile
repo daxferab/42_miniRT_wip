@@ -41,7 +41,9 @@ VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
 
 SOURCES :=	\
 			minirt.c\
+			deg_to_rad.c\
 			free_exit.c\
+			rad_to_deg.c\
 #mlx
 SOURCES +=	\
 			close_hook.c\
@@ -71,10 +73,13 @@ SOURCES +=	\
 SOURCES +=	\
 			move_camera.c\
 			render.c\
+			rotate_camera_horizontally.c\
+			rotate_camera_vertically.c\
 			update_camera_axis.c\
 #vector
 SOURCES +=	\
 			v3_add.c\
+			v3_build.c\
 			v3_dot_product.c\
 			v3_cross_product.c\
 			v3_magnitude.c\

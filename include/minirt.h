@@ -173,7 +173,9 @@ struct s_scene
 /*                                 FUNCTIONS                                  */
 /******************************************************************************/
 
+double	deg_to_rad(double x);
 void	free_exit(t_scene *scene, t_error error);
+double	rad_to_deg(double x);
 
 /******************************************************************************/
 /*                              FUNCTIONS - MLX                               */
@@ -216,6 +218,8 @@ bool	skip_spaces(char **line);
 /******************************************************************************/
 
 void	render(t_scene *scene);
+void	rotate_camera_horizontally(t_scene *scene, double direction);
+void	rotate_camera_vertically(t_scene *scene, double direction);
 void	move_camera(t_scene *scene);
 void	update_camera_axis(t_scene *scene, t_camera *cam);
 
