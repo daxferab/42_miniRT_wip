@@ -26,11 +26,11 @@ void	key_hook(mlx_key_data_t keydata, void *param)
 		|| (keydata.key == MLX_KEY_SPACE && keydata.action == MLX_RELEASE))
 		scene->movement = v3_substract(scene->movement, scene->world_up);
 	if (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
-		rotate_camera_horizontally(scene, 10);
+		rotate_camera_horizontally(scene, deg_to_rad(10));
 	if (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
-		rotate_camera_horizontally(scene, -10);
+		rotate_camera_horizontally(scene, deg_to_rad(-10));
 	if (keydata.key == MLX_KEY_UP && keydata.action == MLX_PRESS)
-		rotate_camera_vertically(scene, 5);
+		rotate_camera_vertically(scene, deg_to_rad(5));
 	if (keydata.key == MLX_KEY_DOWN && keydata.action == MLX_PRESS)
-		rotate_camera_vertically(scene, -5);
+		rotate_camera_vertically(scene, deg_to_rad(-5));
 }
