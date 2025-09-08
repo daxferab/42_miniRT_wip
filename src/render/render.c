@@ -59,7 +59,7 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t 
 		}
 		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
 		double	distance_down = v3_dot_product(v3_substract(center_down, scene->camera->coords), cylinder->axis) / v3_dot_product(rd, cylinder->axis);
-		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(rd, distance_up));;
+		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(rd, distance_down));;
 		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->diameter / 2)
 		{
 			if (distance_down > 0 && distance_down < *closest)
