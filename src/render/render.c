@@ -93,6 +93,7 @@ void	render(t_scene *scene)
 			intersect_cylinders(scene, cam_rd, &closest, &color);
 			//TODO: Apply ambient light
 			t_vector light_rd = v3_substract(scene->light->coords, v3_add(scene->camera->coords, v3_scale(cam_rd, closest)));
+			(void)light_rd;
 			mlx_put_pixel(scene->img, i, j, color);
 			j++;
 		}
