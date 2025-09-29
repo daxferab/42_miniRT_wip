@@ -41,6 +41,7 @@ void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, uint32_t *c
 		sphere = sphere->next;
 	}
 }
+
 void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
 {
 	t_cylinder *cylinder = scene->cylinder_list;
@@ -77,6 +78,43 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t 
 	}
 }
 
+bool crash_with_plane(t_scene *scene, t_coords origin, t_vector rd, double distance)
+{
+	t_plane *plane = scene->plane_list;
+	while (plane)
+	{
+		double intersection = v3_dot_product(v3_substract(plane->coords, origin), plane->normal) / v3_dot_product(rd, plane->normal);
+		if (intersection > 0 && intersection < distance)
+			return (true);
+		plane = plane->next;
+	}
+	return (false);
+}
+
+bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double distance)
+{
+	t_sphere *sphere = scene->sphere_list;
+	while (sphere)
+	{
+		t_vector k = v3_substract(origin, sphere->coords);
+		double disc = pow(v3_dot_product(k, rd), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		double intersection = -1;
+		if (disc >= 0)
+			intersection = -v3_dot_product(k, rd) - sqrt(disc);
+		if (intersection > 0 && intersection < distance)
+			return (true);
+		sphere = sphere->next;
+	}
+	return (false);
+}
+
+bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
+{
+	if (crash_with_plane(scene, origin, rd, distance) || crash_with_sphere(scene, origin, rd, distance)) //TODO: Crash with cylinder
+		return (true);
+	return (false);
+}
+
 void	render(t_scene *scene)
 {
 	double i = 0;
@@ -85,15 +123,17 @@ void	render(t_scene *scene)
 		double j = 0;
 		while (j < HEIGHT)
 		{
-			t_vector cam_rd = get_ray_direction(scene, i, j);
-			double closest = 99999999999999;
-			uint32_t color = 255;
+			t_vector	cam_rd = get_ray_direction(scene, i, j);
+			double		closest = 99999999999999;
+			uint32_t	color = 255;
 			intersect_planes(scene, cam_rd, &closest, &color);
 			intersect_spheres(scene, cam_rd, &closest, &color);
 			intersect_cylinders(scene, cam_rd, &closest, &color);
-			//TODO: Apply ambient light
-			t_vector light_rd = v3_substract(scene->light->coords, v3_add(scene->camera->coords, v3_scale(cam_rd, closest)));
-			(void)light_rd;
+			t_coords	ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
+			t_vector	light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
+			double		dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
+			if (has_obstacles(scene, ray_origin, light_rd, dist_to_light))
+				color = 255;
 			mlx_put_pixel(scene->img, i, j, color);
 			j++;
 		}
