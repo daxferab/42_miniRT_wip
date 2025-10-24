@@ -117,6 +117,27 @@ void	apply_ambient(t_ambient *ambient, t_color *color)
 	color->blue = color->blue * ambient->color.blue * (ambient->ratio) / 255;
 }
 
+void	apply_light(t_light *light, t_color *color)
+{
+	color->red = color->red * (light->ratio) / 255;
+	color->green = color->green * (light->ratio) / 255;
+	color->blue = color->blue * (light->ratio) / 255;
+}
+
+void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double distance, bool in_shadow)
+{
+	(void)distance; //TODO: apply distance
+	t_color with_ambient;
+	t_color	with_light;
+	apply_ambient(ambient, &with_ambient);
+	apply_light(light, &with_light);
+	if (in_shadow)
+		change_color(&with_light, 0, 0, 0);
+	color->red = with_ambient.red + with_light.red;
+	color->green = with_ambient.green + with_light.green;
+	color->blue = with_ambient.blue + with_light.blue;
+}
+
 bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
 {
 	if (crash_with_plane(scene, origin, rd, distance) || crash_with_sphere(scene, origin, rd, distance)) //TODO: Crash with cylinder
@@ -149,9 +170,7 @@ void	render(t_scene *scene)
 			t_coords	ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
 			t_vector	light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
 			double		dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
-			apply_ambient(scene->ambient, &color);
-			if (!has_obstacles(scene, ray_origin, light_rd, dist_to_light))
-				/*TODO: apply light*/;
+			apply_lights(&color, scene->ambient, scene->light, dist_to_light, has_obstacles(scene, ray_origin, light_rd, dist_to_light));
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&color));
 			j++;
 		}
