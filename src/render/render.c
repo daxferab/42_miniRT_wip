@@ -1,5 +1,7 @@
 #include "minirt.h"
 
+void	change_color(t_color *color, int red, int green, int blue);
+
 t_vector	get_ray_direction(t_scene *scene, int i, int j)
 {
 	double x = (2 * i - WIDTH + 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
@@ -110,9 +112,9 @@ bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double dist
 
 void	apply_ambient(t_ambient *ambient, t_color *color)
 {
-	color->red = color->red * ambient->color.red * (ambient->ratio * 255) / 255;
-	color->green = color->green * ambient->color.green * (ambient->ratio * 255) / 255;
-	color->blue = color->blue * ambient->color.blue * (ambient->ratio * 255) / 255;
+	color->red = color->red * ambient->color.red * (ambient->ratio) / 255;
+	color->green = color->green * ambient->color.green * (ambient->ratio) / 255;
+	color->blue = color->blue * ambient->color.blue * (ambient->ratio) / 255;
 }
 
 bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
@@ -150,7 +152,7 @@ void	render(t_scene *scene)
 			apply_ambient(scene->ambient, &color);
 			if (!has_obstacles(scene, ray_origin, light_rd, dist_to_light))
 				/*TODO: apply light*/;
-			mlx_put_pixel(scene->img, i, j, rgb_to_uint(color));
+			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&color));
 			j++;
 		}
 		i++;
