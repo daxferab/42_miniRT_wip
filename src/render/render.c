@@ -8,7 +8,7 @@ t_vector	get_ray_direction(t_scene *scene, int i, int j)
 	return (rd);
 }
 
-void	intersect_planes(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
+void	intersect_planes(t_scene *scene, t_vector rd, double *closest, t_color *color)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
@@ -17,13 +17,13 @@ void	intersect_planes(t_scene *scene, t_vector rd, double *closest, uint32_t *co
 		if (intersection > 0 && intersection < *closest)
 		{
 			*closest = intersection;
-			*color = plane->color.red * pow(256, 3) + plane->color.green * pow(256, 2) + plane->color.blue * pow(256, 1) + 255;
+			change_color(color, plane->color.red, plane->color.green, plane->color.blue);
 		}
 		plane = plane->next;
 	}
 }
 
-void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
+void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, t_color *color)
 {
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
@@ -36,13 +36,13 @@ void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, uint32_t *c
 		if (intersection > 0 && intersection < *closest)
 		{
 			*closest = intersection;
-			*color = sphere->color.red * pow(256, 3) + sphere->color.green * pow(256, 2) + sphere->color.blue * pow(256, 1) + 255;
+			change_color(color, sphere->color.red, sphere->color.green, sphere->color.blue);
 		}
 		sphere = sphere->next;
 	}
 }
 
-void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t *color)
+void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, t_color *color)
 {
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
@@ -56,7 +56,7 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t 
 			if (distance_up > 0 && distance_up < *closest)
 			{
 				*closest = distance_up;
-				*color = cylinder->color.red * pow(256, 3) + cylinder->color.green * pow(256, 2) + cylinder->color.blue * pow(256, 1) + 255;
+				change_color(color, cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 			}
 		}
 
@@ -69,7 +69,7 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, uint32_t 
 			if (distance_down > 0 && distance_down < *closest)
 			{
 				*closest = distance_down;
-				*color = cylinder->color.red * pow(256, 3) + cylinder->color.green * pow(256, 2) + cylinder->color.blue * pow(256, 1) + 255;
+				change_color(color, cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 			}
 		}
 		
@@ -108,16 +108,25 @@ bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double dist
 	return (false);
 }
 
-// void	apply_ambient(t_scene *scene, uint32_t *color)
-// {
-	
-// }
+void	apply_ambient(t_ambient *ambient, t_color *color)
+{
+	color->red = color->red * ambient->color.red * (ambient->ratio * 255) / 255;
+	color->green = color->green * ambient->color.green * (ambient->ratio * 255) / 255;
+	color->blue = color->blue * ambient->color.blue * (ambient->ratio * 255) / 255;
+}
 
 bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
 {
 	if (crash_with_plane(scene, origin, rd, distance) || crash_with_sphere(scene, origin, rd, distance)) //TODO: Crash with cylinder
 		return (true);
 	return (false);
+}
+
+void	change_color(t_color *color, int red, int green, int blue)
+{
+	color->red = red;
+	color->green = green;
+	color->blue = blue;
 }
 
 void	render(t_scene *scene)
@@ -130,18 +139,18 @@ void	render(t_scene *scene)
 		{
 			t_vector	cam_rd = get_ray_direction(scene, i, j);
 			double		closest = 99999999999999;
-			uint32_t	color = 255;
+			t_color		color;
+			change_color(&color, 0, 0, 0);
 			intersect_planes(scene, cam_rd, &closest, &color);
 			intersect_spheres(scene, cam_rd, &closest, &color);
 			intersect_cylinders(scene, cam_rd, &closest, &color);
 			t_coords	ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
 			t_vector	light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
 			double		dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
-			//TODO: apply ambient light
-			//apply_ambient(scene->ambient, &color);
+			apply_ambient(scene->ambient, &color);
 			if (!has_obstacles(scene, ray_origin, light_rd, dist_to_light))
 				/*TODO: apply light*/;
-			mlx_put_pixel(scene->img, i, j, color);
+			mlx_put_pixel(scene->img, i, j, rgb_to_uint(color));
 			j++;
 		}
 		i++;
