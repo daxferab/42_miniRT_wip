@@ -36,7 +36,7 @@ void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, uint32_t *c
 		if (intersection > 0 && intersection < *closest)
 		{
 			*closest = intersection;
-			*color = sphere->color.red * pow(256, 3) + sphere->color.green * pow(256, 2) + sphere->color.blue * pow(256, 1) + 128;
+			*color = sphere->color.red * pow(256, 3) + sphere->color.green * pow(256, 2) + sphere->color.blue * pow(256, 1) + 255;
 		}
 		sphere = sphere->next;
 	}
@@ -85,10 +85,7 @@ bool crash_with_plane(t_scene *scene, t_coords origin, t_vector rd, double dista
 	{
 		double intersection = v3_dot_product(v3_substract(plane->coords, origin), plane->normal) / v3_dot_product(rd, plane->normal);
 		if (intersection > 0.000001 && intersection < distance)
-		{
-			// printf("Inters: %.17f, Distance: %f\n", intersection, distance);
 			return (true);
-		}
 		plane = plane->next;
 	}
 	return (false);
@@ -111,10 +108,10 @@ bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double dist
 	return (false);
 }
 
-void	apply_ambient(t_scene *scene, uint32_t *color)
-{
+// void	apply_ambient(t_scene *scene, uint32_t *color)
+// {
 	
-}
+// }
 
 bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
 {
@@ -141,9 +138,9 @@ void	render(t_scene *scene)
 			t_vector	light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
 			double		dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
 			//TODO: apply ambient light
-			apply_ambient(scene->ambient, &color);
+			//apply_ambient(scene->ambient, &color);
 			if (!has_obstacles(scene, ray_origin, light_rd, dist_to_light))
-				//TODO: apply light;
+				/*TODO: apply light*/;
 			mlx_put_pixel(scene->img, i, j, color);
 			j++;
 		}
