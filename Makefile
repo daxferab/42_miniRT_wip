@@ -44,6 +44,7 @@ SOURCES :=	\
 			deg_to_rad.c\
 			free_exit.c\
 			rad_to_deg.c\
+			rgb_to_uint.c\
 #mlx
 SOURCES +=	\
 			close_hook.c\
