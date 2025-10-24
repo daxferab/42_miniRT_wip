@@ -176,6 +176,7 @@ struct s_scene
 double	deg_to_rad(double x);
 void	free_exit(t_scene *scene, t_error error);
 double	rad_to_deg(double x);
+void	rgb_to_uint(t_color *color);
 
 /******************************************************************************/
 /*                              FUNCTIONS - MLX                               */
