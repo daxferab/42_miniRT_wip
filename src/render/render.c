@@ -117,25 +117,32 @@ void	apply_ambient(t_ambient *ambient, t_color *color)
 	color->blue = color->blue * ambient->color.blue * (ambient->ratio) / 255;
 }
 
-void	apply_light(t_light *light, t_color *color)
+void	apply_light(t_light *light, t_color color, t_color *final)
 {
-	color->red = color->red * (light->ratio) / 255;
-	color->green = color->green * (light->ratio) / 255;
-	color->blue = color->blue * (light->ratio) / 255;
+	final->red += color.red * (light->ratio);
+	final->green += color.green * (light->ratio);
+	final->blue += color.blue * (light->ratio);
 }
 
 void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double distance, bool in_shadow)
 {
 	(void)distance; //TODO: apply distance
-	t_color with_ambient;
-	t_color	with_light;
-	apply_ambient(ambient, &with_ambient);
-	apply_light(light, &with_light);
-	if (in_shadow)
-		change_color(&with_light, 0, 0, 0);
-	color->red = with_ambient.red + with_light.red;
-	color->green = with_ambient.green + with_light.green;
-	color->blue = with_ambient.blue + with_light.blue;
+	t_color final;
+	t_color add_light;
+	change_color(&final, color->red, color->green, color->blue);
+	apply_ambient(ambient, &final);
+	if (!in_shadow)
+	{
+		change_color(&add_light, color->red, color->green, color->blue);
+		apply_light(light, add_light, &final);
+	}
+	if (final.red > 255)
+		final.red = 255;
+	if (final.green > 255)
+		final.green = 255;
+	if (final.blue > 255)
+		final.blue = 255;
+	*color = final;
 }
 
 bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
