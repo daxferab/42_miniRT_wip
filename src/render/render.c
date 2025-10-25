@@ -1,13 +1,18 @@
 #include "minirt.h"
 
-void	change_color(t_color *color, int red, int green, int blue);
-
 t_vector	get_ray_direction(t_scene *scene, int i, int j)
 {
 	double x = (2 * i - WIDTH + 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
 	double y = (-2 * j + HEIGHT - 1) * tan(deg_to_rad(scene->camera->fov * 0.5)) / WIDTH;
 	t_vector rd = v3_normalize(v3_add(v3_add(v3_scale(scene->camera->right, x), v3_scale(scene->camera->up, y)), scene->camera->orientation));
 	return (rd);
+}
+
+void	change_color(t_color *color, int red, int green, int blue)
+{
+	color->red = red;
+	color->green = green;
+	color->blue = blue;
 }
 
 void	intersect_planes(t_scene *scene, t_vector rd, double *closest, t_color *color)
@@ -76,6 +81,7 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, t_color *
 		}
 		
 		// BODY
+		// TODO: Cylinder body
 		cylinder = cylinder->next;
 	}
 }
@@ -112,21 +118,32 @@ bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double dist
 
 void	apply_ambient(t_ambient *ambient, t_color *color)
 {
-	color->red = color->red * ambient->color.red * (ambient->ratio) / 255;
-	color->green = color->green * ambient->color.green * (ambient->ratio) / 255;
-	color->blue = color->blue * ambient->color.blue * (ambient->ratio) / 255;
+	color->red *= ambient->color.red * ambient->ratio / 255;
+	color->green *= ambient->color.green * ambient->ratio / 255;
+	color->blue *= ambient->color.blue * ambient->ratio / 255;
 }
 
-void	apply_light(t_light *light, t_color color, t_color *final)
+void	apply_light(t_light *light, double distance, t_color color, t_color *final)
 {
-	final->red += color.red * (light->ratio);
-	final->green += color.green * (light->ratio);
-	final->blue += color.blue * (light->ratio);
+	double attenuation = 1 / (1 + 0.1 * distance + 0.01 * pow(distance, 2));
+    double intensity = light->ratio * attenuation;
+	final->red += color.red * intensity;
+	final->green += color.green * intensity;
+	final->blue += color.blue * intensity;
+}
+
+void	clamp_values(t_color *color)
+{
+	if (color->red > 255)
+		color->red = 255;
+	if (color->green > 255)
+		color->green = 255;
+	if (color->blue > 255)
+		color->blue = 255;
 }
 
 void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double distance, bool in_shadow)
 {
-	(void)distance; //TODO: apply distance
 	t_color final;
 	t_color add_light;
 	change_color(&final, color->red, color->green, color->blue);
@@ -134,14 +151,9 @@ void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double dis
 	if (!in_shadow)
 	{
 		change_color(&add_light, color->red, color->green, color->blue);
-		apply_light(light, add_light, &final);
+		apply_light(light, distance, add_light, &final);
 	}
-	if (final.red > 255)
-		final.red = 255;
-	if (final.green > 255)
-		final.green = 255;
-	if (final.blue > 255)
-		final.blue = 255;
+	clamp_values(&final);
 	*color = final;
 }
 
@@ -150,13 +162,6 @@ bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distanc
 	if (crash_with_plane(scene, origin, rd, distance) || crash_with_sphere(scene, origin, rd, distance)) //TODO: Crash with cylinder
 		return (true);
 	return (false);
-}
-
-void	change_color(t_color *color, int red, int green, int blue)
-{
-	color->red = red;
-	color->green = green;
-	color->blue = blue;
 }
 
 void	render(t_scene *scene)
