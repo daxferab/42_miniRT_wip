@@ -166,22 +166,30 @@ bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distanc
 
 void	render(t_scene *scene)
 {
-	double i = 0;
+	double		i;
+	double		j;
+	double		closest;
+	double		dist_to_light;
+	t_vector	cam_rd;
+	t_color		color;
+	t_coords	ray_origin;
+	t_vector	light_rd;
+
+	i = 0;	
 	while (i < WIDTH)
 	{
-		double j = 0;
+		j = 0;
 		while (j < HEIGHT)
 		{
-			t_vector	cam_rd = get_ray_direction(scene, i, j);
-			double		closest = 99999999999999;
-			t_color		color;
+			closest = 99999999999999;
+			cam_rd = get_ray_direction(scene, i, j);
 			change_color(&color, 0, 0, 0);
 			intersect_planes(scene, cam_rd, &closest, &color);
 			intersect_spheres(scene, cam_rd, &closest, &color);
 			intersect_cylinders(scene, cam_rd, &closest, &color);
-			t_coords	ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
-			t_vector	light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
-			double		dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
+			ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
+			light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
+			dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
 			apply_lights(&color, scene->ambient, scene->light, dist_to_light, has_obstacles(scene, ray_origin, light_rd, dist_to_light));
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&color));
 			j++;
