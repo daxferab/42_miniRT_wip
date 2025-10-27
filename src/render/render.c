@@ -15,68 +15,68 @@ void	change_color(t_color *color, int red, int green, int blue)
 	color->blue = blue;
 }
 
-void	intersect_planes(t_scene *scene, t_vector rd, double *closest, t_color *color)
+void	intersect_planes(t_scene *scene, t_point *point)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = v3_dot_product(v3_substract(plane->coords, scene->camera->coords), plane->normal) / v3_dot_product(rd, plane->normal);
-		if (intersection > 0 && intersection < *closest)
+		double intersection = v3_dot_product(v3_substract(plane->coords, scene->camera->coords), plane->normal) / v3_dot_product(point->cam_ray, plane->normal);
+		if (intersection > 0 && intersection < point->closest)
 		{
-			*closest = intersection;
-			change_color(color, plane->color.red, plane->color.green, plane->color.blue);
+			point->closest = intersection;
+			change_color(&(point->color), plane->color.red, plane->color.green, plane->color.blue);
 		}
 		plane = plane->next;
 	}
 }
 
-void	intersect_spheres(t_scene *scene, t_vector rd, double *closest, t_color *color)
+void	intersect_spheres(t_scene *scene, t_point *point)
 {
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
 		t_vector k = v3_substract(scene->camera->coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, rd), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
 		double intersection = -1;
 		if (disc >= 0)
-			intersection = -v3_dot_product(k, rd) - sqrt(disc);
-		if (intersection > 0 && intersection < *closest)
+			intersection = -v3_dot_product(k, point->cam_ray) - sqrt(disc);
+		if (intersection > 0 && intersection < point->closest)
 		{
-			*closest = intersection;
-			change_color(color, sphere->color.red, sphere->color.green, sphere->color.blue);
+			point->closest = intersection;
+			change_color(&(point->color), sphere->color.red, sphere->color.green, sphere->color.blue);
 		}
 		sphere = sphere->next;
 	}
 }
 
-void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, t_color *color)
+void	intersect_cylinders(t_scene *scene, t_point *point)
 {
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
 		// TOP CAP
 		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
-		double	distance_up = v3_dot_product(v3_substract(center_up, scene->camera->coords), cylinder->axis) / v3_dot_product(rd, cylinder->axis);
-		t_coords intersection_up = v3_add(scene->camera->coords, v3_scale(rd, distance_up));
+		double	distance_up = v3_dot_product(v3_substract(center_up, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
+		t_coords intersection_up = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_up));
 		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->diameter / 2)
 		{
-			if (distance_up > 0 && distance_up < *closest)
+			if (distance_up > 0 && distance_up < point->closest)
 			{
-				*closest = distance_up;
-				change_color(color, cylinder->color.red, cylinder->color.green, cylinder->color.blue);
+				point->closest = distance_up;
+				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 			}
 		}
 
 		// BOTTOM CAP
 		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
-		double	distance_down = v3_dot_product(v3_substract(center_down, scene->camera->coords), cylinder->axis) / v3_dot_product(rd, cylinder->axis);
-		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(rd, distance_down));
+		double	distance_down = v3_dot_product(v3_substract(center_down, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
+		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_down));
 		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->diameter / 2)
 		{
-			if (distance_down > 0 && distance_down < *closest)
+			if (distance_down > 0 && distance_down < point->closest)
 			{
-				*closest = distance_down;
-				change_color(color, cylinder->color.red, cylinder->color.green, cylinder->color.blue);
+				point->closest = distance_down;
+				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 			}
 		}
 		
@@ -86,30 +86,30 @@ void	intersect_cylinders(t_scene *scene, t_vector rd, double *closest, t_color *
 	}
 }
 
-bool crash_with_plane(t_scene *scene, t_coords origin, t_vector rd, double distance)
+bool crash_with_plane(t_scene *scene, t_point point)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = v3_dot_product(v3_substract(plane->coords, origin), plane->normal) / v3_dot_product(rd, plane->normal);
-		if (intersection > 0.000001 && intersection < distance)
+		double intersection = v3_dot_product(v3_substract(plane->coords, point.coords), plane->normal) / v3_dot_product(point.light_ray, plane->normal);
+		if (intersection > 0.000001 && intersection < point.light_distance)
 			return (true);
 		plane = plane->next;
 	}
 	return (false);
 }
 
-bool crash_with_sphere(t_scene *scene, t_coords origin, t_vector rd, double distance)
+bool crash_with_sphere(t_scene *scene, t_point point)
 {
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
-		t_vector k = v3_substract(origin, sphere->coords);
-		double disc = pow(v3_dot_product(k, rd), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		t_vector k = v3_substract(point.coords, sphere->coords);
+		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
 		double intersection = -1;
 		if (disc >= 0)
-			intersection = -v3_dot_product(k, rd) - sqrt(disc);
-		if (intersection > 0.000001 && intersection < distance)
+			intersection = -v3_dot_product(k, point.light_ray) - sqrt(disc);
+		if (intersection > 0.000001 && intersection < point.light_distance)
 			return (true);
 		sphere = sphere->next;
 	}
@@ -157,9 +157,9 @@ void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double dis
 	*color = final;
 }
 
-bool	has_obstacles(t_scene *scene,  t_coords origin, t_vector rd, double distance)
+bool	has_obstacles(t_scene *scene, t_point point)
 {
-	if (crash_with_plane(scene, origin, rd, distance) || crash_with_sphere(scene, origin, rd, distance)) //TODO: Crash with cylinder
+	if (crash_with_plane(scene, point) || crash_with_sphere(scene, point)) //TODO: Crash with cylinder
 		return (true);
 	return (false);
 }
@@ -168,12 +168,7 @@ void	render(t_scene *scene)
 {
 	double		i;
 	double		j;
-	double		closest;
-	double		dist_to_light;
-	t_vector	cam_rd;
-	t_color		color;
-	t_coords	ray_origin;
-	t_vector	light_rd;
+	t_point		point;
 
 	i = 0;	
 	while (i < WIDTH)
@@ -181,17 +176,17 @@ void	render(t_scene *scene)
 		j = 0;
 		while (j < HEIGHT)
 		{
-			closest = 99999999999999;
-			cam_rd = get_ray_direction(scene, i, j);
-			change_color(&color, 0, 0, 0);
-			intersect_planes(scene, cam_rd, &closest, &color);
-			intersect_spheres(scene, cam_rd, &closest, &color);
-			intersect_cylinders(scene, cam_rd, &closest, &color);
-			ray_origin = v3_add(scene->camera->coords, v3_scale(cam_rd, closest));
-			light_rd = v3_normalize(v3_substract(scene->light->coords, ray_origin));
-			dist_to_light = v3_magnitude(v3_substract(scene->light->coords, ray_origin));
-			apply_lights(&color, scene->ambient, scene->light, dist_to_light, has_obstacles(scene, ray_origin, light_rd, dist_to_light));
-			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&color));
+			point.closest = 99999999999999;
+			point.cam_ray = get_ray_direction(scene, i, j);
+			change_color(&point.color, 0, 0, 0);
+			intersect_planes(scene, &point);
+			intersect_spheres(scene, &point);
+			intersect_cylinders(scene, &point);
+			point.coords = v3_add(scene->camera->coords, v3_scale(point.cam_ray, point.closest));
+			point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
+			point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
+			apply_lights(&point.color, scene->ambient, scene->light, point.light_distance, has_obstacles(scene, point));
+			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&point.color));
 			j++;
 		}
 		i++;

@@ -35,6 +35,7 @@ typedef struct s_color		t_color;
 typedef struct s_v3			t_coords;
 typedef struct s_v3			t_vector;
 typedef struct s_v3			t_v3;
+typedef struct s_point		t_point;
 
 typedef struct s_ambient	t_ambient;
 typedef struct s_camera		t_camera;
@@ -168,6 +169,18 @@ struct s_scene
 	t_vector	movement;
 	t_vector	world_up;
 };
+
+struct s_point
+{
+	t_coords	coords;
+	t_color		color;
+	double		closest;
+	t_vector	cam_ray;
+	double		cam_distance;
+	t_vector	light_ray;
+	double		light_distance;
+};
+
 
 /******************************************************************************/
 /*                                 FUNCTIONS                                  */
