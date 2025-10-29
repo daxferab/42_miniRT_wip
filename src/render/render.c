@@ -36,7 +36,7 @@ void	intersect_spheres(t_scene *scene, t_point *point)
 	while (sphere)
 	{
 		t_vector k = v3_substract(scene->camera->coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter / 2, 2);
 		double intersection = -1;
 		if (disc >= 0)
 			intersection = -v3_dot_product(k, point->cam_ray) - sqrt(disc);
@@ -99,13 +99,15 @@ bool crash_with_plane(t_scene *scene, t_point point)
 	return (false);
 }
 
+//FIXME: Dont illuminate when light is inside sphere and camera isnt
+//FIXME: Wrong shadow in sphere
 bool crash_with_sphere(t_scene *scene, t_point point)
 {
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
 		t_vector k = v3_substract(point.coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter, 2);
+		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter / 2, 2);
 		double intersection = -1;
 		if (disc >= 0)
 			intersection = -v3_dot_product(k, point.light_ray) - sqrt(disc);
@@ -142,19 +144,19 @@ void	clamp_values(t_color *color)
 		color->blue = 255;
 }
 
-void	apply_lights(t_color *color, t_ambient *ambient, t_light *light, double distance, bool in_shadow)
+void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_shadow)
 {
 	t_color final;
 	t_color add_light;
-	change_color(&final, color->red, color->green, color->blue);
+	change_color(&final, point->color.red, point->color.green, point->color.blue);
 	apply_ambient(ambient, &final);
 	if (!in_shadow)
 	{
-		change_color(&add_light, color->red, color->green, color->blue);
-		apply_light(light, distance, add_light, &final);
+		change_color(&add_light, point->color.red, point->color.green, point->color.blue);
+		apply_light(light, point->light_distance, add_light, &final);
 	}
 	clamp_values(&final);
-	*color = final;
+	point->color = final;
 }
 
 bool	has_obstacles(t_scene *scene, t_point point)
@@ -185,7 +187,7 @@ void	render(t_scene *scene)
 			point.coords = v3_add(scene->camera->coords, v3_scale(point.cam_ray, point.closest));
 			point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
 			point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
-			apply_lights(&point.color, scene->ambient, scene->light, point.light_distance, has_obstacles(scene, point));
+			apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, point));
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&point.color));
 			j++;
 		}
