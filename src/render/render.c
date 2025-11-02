@@ -54,6 +54,35 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
+		// BODY
+
+		t_vector k = v3_substract(scene->camera->coords, cylinder->coords);
+		t_vector d = point->cam_ray;
+		t_vector A = cylinder->axis;
+		t_vector D = v3_substract(d, v3_scale(A, v3_dot_product(d, A)));
+		t_vector K = v3_substract(k, v3_scale(A, v3_dot_product(k, A)));
+
+		double DK = v3_dot_product(D, K);
+		double DD = v3_dot_product(D, D);
+		double KK = v3_dot_product(K, K);
+
+		double disc = DK * DK - DD * (KK - pow(cylinder->diameter / 2, 2));
+		double intersection = -1;
+		if (disc >= 0)
+			intersection = (-DK - sqrt(disc)) / DD;
+
+		t_vector intersection_point = v3_add(scene->camera->coords, v3_scale(d, intersection));
+		double h = v3_dot_product(v3_substract(intersection_point, cylinder->coords), A);
+
+		if (fabs(h) <= cylinder->height / 2)
+		{
+			if (intersection > 0 && intersection < point->closest)
+			{
+				point->closest = intersection;
+				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
+			}
+		}
+
 		// TOP CAP
 		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
 		double	distance_up = v3_dot_product(v3_substract(center_up, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
@@ -79,9 +108,7 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 			}
 		}
-		
-		// BODY
-		// TODO: Cylinder body
+
 		cylinder = cylinder->next;
 	}
 }
