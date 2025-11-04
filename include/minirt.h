@@ -176,7 +176,6 @@ struct s_point
 	t_color		color;
 	double		closest;
 	t_vector	cam_ray;
-	double		cam_distance;
 	t_vector	light_ray;
 	double		light_distance;
 };

@@ -211,7 +211,7 @@ void	apply_ambient(t_ambient *ambient, t_color *color)
 void	apply_light(t_light *light, double distance, t_color color, t_color *final)
 {
 	double attenuation = 1 / (1 + 0.1 * distance + 0.01 * pow(distance, 2));
-    double intensity = light->ratio * attenuation;
+	double intensity = light->ratio * attenuation;
 	final->red += color.red * intensity;
 	final->green += color.green * intensity;
 	final->blue += color.blue * intensity;
@@ -244,18 +244,16 @@ void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_sh
 
 bool	has_obstacles(t_scene *scene, t_point point)
 {
-	if (crash_with_plane(scene, point) || crash_with_sphere(scene, point) || crash_with_cylinder(scene, point)) //TODO: Crash with cylinder
-		return (true);
-	return (false);
+	return (crash_with_plane(scene, point) || crash_with_sphere(scene, point) || crash_with_cylinder(scene, point));
 }
 
 void	render(t_scene *scene)
 {
-	double		i;
-	double		j;
-	t_point		point;
+	double	i;
+	double	j;
+	t_point	point;
 
-	i = 0;	
+	i = 0;
 	while (i < WIDTH)
 	{
 		j = 0;
