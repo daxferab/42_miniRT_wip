@@ -13,7 +13,7 @@ void	parse_sphere(t_scene *scene, char **line)
 		free_exit(scene, ERR_SPH_COORDS);
 	if (!skip_spaces(line))
 		free_exit(scene, ERR_SPACES);
-	if (!read_double_positive(line, &sphere->diameter))
+	if (!read_double_positive_halfed(line, &sphere->radius))
 		free_exit(scene, ERR_SPH_DIAMETER);
 	if (!skip_spaces(line))
 		free_exit(scene, ERR_SPACES);

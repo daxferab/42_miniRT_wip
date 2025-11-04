@@ -36,7 +36,7 @@ void	intersect_spheres(t_scene *scene, t_point *point)
 	while (sphere)
 	{
 		t_vector k = v3_substract(scene->camera->coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter / 2, 2);
+		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
 		double intersection = -1;
 		if (disc >= 0)
 			intersection = -v3_dot_product(k, point->cam_ray) - sqrt(disc);
@@ -66,7 +66,7 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 		double DD = v3_dot_product(D, D);
 		double KK = v3_dot_product(K, K);
 
-		double disc = DK * DK - DD * (KK - pow(cylinder->diameter / 2, 2));
+		double disc = DK * DK - DD * (KK - pow(cylinder->radius, 2));
 		double intersection = -1;
 		if (disc >= 0)
 			intersection = (-DK - sqrt(disc)) / DD;
@@ -74,7 +74,7 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 		t_vector intersection_point = v3_add(scene->camera->coords, v3_scale(d, intersection));
 		double h = v3_dot_product(v3_substract(intersection_point, cylinder->coords), A);
 
-		if (fabs(h) <= cylinder->height / 2)
+		if (fabs(h) <= cylinder->half_height)
 		{
 			if (intersection > 0 && intersection < point->closest)
 			{
@@ -84,10 +84,10 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 		}
 
 		// TOP CAP
-		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
+		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
 		double	distance_up = v3_dot_product(v3_substract(center_up, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
 		t_coords intersection_up = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_up));
-		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->diameter / 2)
+		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->radius)
 		{
 			if (distance_up > 0 && distance_up < point->closest)
 			{
@@ -97,10 +97,10 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 		}
 
 		// BOTTOM CAP
-		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->height / 2));
+		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
 		double	distance_down = v3_dot_product(v3_substract(center_down, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
 		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_down));
-		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->diameter / 2)
+		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->radius)
 		{
 			if (distance_down > 0 && distance_down < point->closest)
 			{
@@ -134,7 +134,7 @@ bool crash_with_sphere(t_scene *scene, t_point point)
 	while (sphere)
 	{
 		t_vector k = v3_substract(point.coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->diameter / 2, 2);
+		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
 		double intersection = -1;
 		if (disc >= 0)
 			intersection = -v3_dot_product(k, point.light_ray) - sqrt(disc);

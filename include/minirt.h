@@ -132,7 +132,7 @@ struct s_light
 struct s_sphere
 {
 	t_coords	coords;
-	double		diameter;
+	double		radius;
 	t_color		color;
 	t_sphere	*next;
 };
@@ -149,8 +149,8 @@ struct s_cylinder
 {
 	t_coords	coords;
 	t_vector	axis;
-	double		diameter;
-	double		height;
+	double		radius;
+	double		half_height;
 	t_color		color;
 	t_cylinder	*next;
 };
@@ -218,7 +218,7 @@ void	parse_cylinder(t_scene *scene, char **line);
 /******************************************************************************/
 
 bool	read_color(char **line, t_color *color);
-bool	read_double_positive(char **line, double *result);
+bool	read_double_positive_halfed(char **line, double *result);
 bool	read_double_ratio(char **line, double *result);
 bool	read_double(char **line, double *result);
 bool	read_int_maxed(char **line, int *result, int max_range);
