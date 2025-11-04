@@ -2,6 +2,8 @@
 
 void	parse_light(t_scene *scene, char **line)
 {
+	t_color	unused;
+
 	if (scene->light)
 		free_exit(scene, ERR_LIG_SEVERAL);
 	scene->light = malloc(sizeof(t_light));
@@ -13,4 +15,8 @@ void	parse_light(t_scene *scene, char **line)
 		free_exit(scene, ERR_SPACES);
 	if (!read_double_ratio(line, &scene->light->ratio))
 		free_exit(scene, ERR_LIG_RATIO);
+	if (!skip_spaces(line))
+		free_exit(scene, ERR_SPACES);
+	if (!read_color(line, &unused))
+		free_exit(scene, ERR_LIG_COLOR);
 }

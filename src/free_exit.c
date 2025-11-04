@@ -26,6 +26,7 @@ static const char	*g_message[MAX_ERR_CODE] = {
 	"Light is declared several times",
 	"Light coordinates must be 3 doubles split by commas",
 	"Light ratio must be a double in the range [0.0,1.0]",
+	"Light color must be 3 integers the range [0,255] split by commas",
 	"Plane coordinates must be 3 doubles split by commas",
 	"Plane normal normalized vector must be 3 doubles split by commas",
 	"Plane color must be 3 integers the range [0,255] split by commas",
