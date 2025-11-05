@@ -15,13 +15,13 @@ void	change_color(t_color *color, int red, int green, int blue)
 	color->blue = blue;
 }
 
-double	 solve_plane(t_plane *plane, t_camera *camera, t_point *point)
+double	solve_plane(t_plane *plane, t_coords origin, t_vector direction)
 {
 	double	numerator;
 	double	denominator;
 
-	numerator = v3_dot_product(v3_substract(plane->coords, camera->coords), plane->normal);
-	denominator = v3_dot_product(point->cam_ray, plane->normal);
+	numerator = v3_dot_product(v3_substract(plane->coords, origin), plane->normal);
+	denominator = v3_dot_product(direction, plane->normal);
 	if (denominator == 0 && numerator == 0)
 		return (0);
 	else if (denominator == 0)
@@ -30,12 +30,31 @@ double	 solve_plane(t_plane *plane, t_camera *camera, t_point *point)
 		return (numerator / denominator);
 }
 
+double	solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction)
+{
+	t_vector	k;
+	double		dk;
+	double		disc;
+
+	k = v3_substract(origin, sphere->coords);
+	dk = v3_dot_product(k, direction);
+	disc = pow(dk, 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
+	if (disc < 0)
+		return (-1);
+	else if (disc == 0)
+		return (-dk);
+	else if (-dk - sqrt(disc) >= 0)
+		return (-dk - sqrt(disc));
+	else
+		return (-dk + sqrt(disc));
+}
+
 void	intersect_planes(t_scene *scene, t_point *point)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = solve_plane(plane, scene->camera, point);
+		double intersection = solve_plane(plane, scene->camera->coords, point->cam_ray);
 		if (intersection > 0 && intersection < point->closest)
 		{
 			point->closest = intersection;
@@ -53,11 +72,7 @@ void	intersect_spheres(t_scene *scene, t_point *point)
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
-		t_vector k = v3_substract(scene->camera->coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point->cam_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
-		double intersection = -1;
-		if (disc >= 0)
-			intersection = -v3_dot_product(k, point->cam_ray) - sqrt(disc);
+		double intersection = solve_sphere(sphere, scene->camera->coords, point->cam_ray);
 		if (intersection > 0 && intersection < point->closest)
 		{
 			point->closest = intersection;
@@ -136,7 +151,7 @@ bool crash_with_planes(t_scene *scene, t_point *point)
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = solve_plane(plane, scene->camera, point);
+		double intersection = solve_plane(plane, point->coords, point->light_ray);
 		if (intersection > 0.000001 && intersection < point->light_distance)
 			return (true);
 		plane = plane->next;
@@ -151,11 +166,7 @@ bool crash_with_spheres(t_scene *scene, t_point *point)
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
-		t_vector k = v3_substract(point->coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point->light_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
-		double intersection = -1;
-		if (disc >= 0)
-			intersection = -v3_dot_product(k, point->light_ray) - sqrt(disc);
+		double intersection = solve_sphere(sphere, point->coords, point->light_ray);
 		if (intersection > 0.000001 && intersection < point->light_distance)
 			return (true);
 		sphere = sphere->next;
