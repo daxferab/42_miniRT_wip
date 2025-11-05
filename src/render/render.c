@@ -15,6 +15,11 @@ void	change_color(t_color *color, int red, int green, int blue)
 	color->blue = blue;
 }
 
+t_coords	ray_at(t_coords origin, t_vector direction, double distance)
+{
+	return (v3_add(origin, v3_scale(direction, distance)));
+}
+
 double	solve_plane(t_plane *plane, t_coords origin, t_vector direction)
 {
 	double	numerator;
@@ -26,8 +31,7 @@ double	solve_plane(t_plane *plane, t_coords origin, t_vector direction)
 		return (0);
 	else if (denominator == 0)
 		return (-1);
-	else
-		return (numerator / denominator);
+	return (numerator / denominator);
 }
 
 double	solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction)
@@ -45,8 +49,79 @@ double	solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction)
 		return (-dk);
 	else if (-dk - sqrt(disc) >= 0)
 		return (-dk - sqrt(disc));
-	else
-		return (-dk + sqrt(disc));
+	return (-dk + sqrt(disc));
+}
+
+bool	is_in_height(t_cylinder *cylinder, t_coords origin, t_vector direction, double distance)
+{
+	t_vector	intersection;
+	double		height;
+
+	intersection = v3_add(origin, v3_scale(direction, distance));
+	height = v3_dot_product(v3_substract(intersection, cylinder->coords), cylinder->axis);
+	return (fabs(height) <= cylinder->half_height);
+}
+
+double	solve_cylinder(t_cylinder *cylinder, t_coords origin, t_vector direction)
+{
+	t_vector k = v3_substract(origin, cylinder->coords);
+	t_vector d = direction;
+	t_vector A = cylinder->axis;
+	t_vector D = v3_substract(d, v3_scale(A, v3_dot_product(d, A)));
+	t_vector K = v3_substract(k, v3_scale(A, v3_dot_product(k, A)));
+
+	double DK = v3_dot_product(D, K);
+	double DD = v3_dot_product(D, D);
+	double KK = v3_dot_product(K, K);
+
+	if (DD == 0) //direction is parallel to axis
+		return (-1);
+	double disc = DK * DK - DD * (KK - pow(cylinder->radius, 2));
+	double t;
+	if (disc < 0)
+		return (-1);
+	t = (-DK - sqrt(disc)) / DD;
+	if (is_in_height(cylinder,origin, direction, t))
+		return (t);
+	if (disc == 0)
+		return (-1);
+	t = (-DK + sqrt(disc)) / DD;
+	if (is_in_height(cylinder,origin, direction, t))
+		return (t);
+	return (-1);
+}
+
+double	solve_disk(t_cylinder *cylinder, t_coords origin, t_vector direction, t_plane *plane)
+{
+	double		distance;
+	t_coords	intersection;
+
+	distance = solve_plane(plane, origin, direction);
+	if (distance >= 0)
+	{
+		intersection = ray_at(origin, direction, distance);
+		if (v3_magnitude(v3_substract(intersection, plane->coords)) <= cylinder->radius)
+			return (distance);
+	}
+	return (-1);
+}
+
+double	solve_caps(t_cylinder *cylinder, t_coords origin, t_vector direction)
+{
+	t_plane		plane;
+	double		distance_1;
+	double		distance_2;
+
+	plane.normal = cylinder->axis;
+	plane.coords = ray_at(cylinder->coords, cylinder->axis, cylinder->half_height);
+	distance_1 = solve_disk(cylinder, origin, direction, &plane);
+	plane.coords = ray_at(cylinder->coords, cylinder->axis, -cylinder->half_height);
+	distance_2 = solve_disk(cylinder, origin, direction, &plane);
+	if (distance_1 >= 0 && (distance_1 <= distance_2 || distance_2 < 0))
+		return (distance_1);
+	if (distance_2 >= 0 && (distance_2 <= distance_1 || distance_1 < 0))
+		return (distance_2);
+	return(-1);
 }
 
 void	intersect_planes(t_scene *scene, t_point *point)
@@ -87,61 +162,18 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
-		// BODY
-
-		t_vector k = v3_substract(scene->camera->coords, cylinder->coords);
-		t_vector d = point->cam_ray;
-		t_vector A = cylinder->axis;
-		t_vector D = v3_substract(d, v3_scale(A, v3_dot_product(d, A)));
-		t_vector K = v3_substract(k, v3_scale(A, v3_dot_product(k, A)));
-
-		double DK = v3_dot_product(D, K);
-		double DD = v3_dot_product(D, D);
-		double KK = v3_dot_product(K, K);
-
-		double disc = DK * DK - DD * (KK - pow(cylinder->radius, 2));
-		double intersection = -1;
-		if (disc >= 0)
-			intersection = (-DK - sqrt(disc)) / DD;
-
-		t_vector intersection_point = v3_add(scene->camera->coords, v3_scale(d, intersection));
-		double h = v3_dot_product(v3_substract(intersection_point, cylinder->coords), A);
-
-		if (fabs(h) <= cylinder->half_height)
+		double intersection = solve_cylinder(cylinder, scene->camera->coords, point->cam_ray);
+		if (intersection > 0 && intersection < point->closest)
 		{
-			if (intersection > 0 && intersection < point->closest)
-			{
-				point->closest = intersection;
-				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
-			}
+			point->closest = intersection;
+			change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 		}
-
-		// TOP CAP
-		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_up = v3_dot_product(v3_substract(center_up, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
-		t_coords intersection_up = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_up));
-		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->radius)
+		intersection = solve_caps(cylinder, scene->camera->coords, point->cam_ray);
+		if (intersection > 0 && intersection < point->closest)
 		{
-			if (distance_up > 0 && distance_up < point->closest)
-			{
-				point->closest = distance_up;
-				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
-			}
+			point->closest = intersection;
+			change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 		}
-
-		// BOTTOM CAP
-		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_down = v3_dot_product(v3_substract(center_down, scene->camera->coords), cylinder->axis) / v3_dot_product(point->cam_ray, cylinder->axis);
-		t_coords	intersection_down = v3_add(scene->camera->coords, v3_scale(point->cam_ray, distance_down));
-		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->radius)
-		{
-			if (distance_down > 0 && distance_down < point->closest)
-			{
-				point->closest = distance_down;
-				change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
-			}
-		}
-
 		cylinder = cylinder->next;
 	}
 }
@@ -179,52 +211,12 @@ bool	crash_with_cylinders(t_scene *scene, t_point *point)
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
-		// BODY
-
-		t_vector k = v3_substract(point->coords, cylinder->coords);
-		t_vector d = point->light_ray;
-		t_vector A = cylinder->axis;
-		t_vector D = v3_substract(d, v3_scale(A, v3_dot_product(d, A)));
-		t_vector K = v3_substract(k, v3_scale(A, v3_dot_product(k, A)));
-
-		double DK = v3_dot_product(D, K);
-		double DD = v3_dot_product(D, D);
-		double KK = v3_dot_product(K, K);
-
-		double disc = DK * DK - DD * (KK - pow(cylinder->radius, 2));
-		double intersection = -1;
-		if (disc >= 0)
-			intersection = (-DK - sqrt(disc)) / DD;
-
-		t_vector intersection_point = v3_add(point->coords, v3_scale(d, intersection));
-		double h = v3_dot_product(v3_substract(intersection_point, cylinder->coords), A);
-
-		if (fabs(h) <= cylinder->half_height)
-		{
-			if (intersection > 0.000001 && intersection < point->closest)
-				return (true);
-		}
-
-		// TOP CAP
-		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_up = v3_dot_product(v3_substract(center_up, point->coords), cylinder->axis) / v3_dot_product(point->light_ray, cylinder->axis);
-		t_coords intersection_up = v3_add(point->coords, v3_scale(point->light_ray, distance_up));
-		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->radius)
-		{
-			if (distance_up > 0.000001 && distance_up < point->closest)
-				return (true);
-		}
-
-		// BOTTOM CAP
-		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_down = v3_dot_product(v3_substract(center_down, point->coords), cylinder->axis) / v3_dot_product(point->light_ray, cylinder->axis);
-		t_coords	intersection_down = v3_add(point->coords, v3_scale(point->light_ray, distance_down));
-		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->radius)
-		{
-			if (distance_down > 0.000001 && distance_down < point->closest)
-				return (true);
-		}
-
+		double intersection = solve_cylinder(cylinder, point->coords, point->light_ray);
+		if (intersection > 0.000001 && intersection < point->closest)
+			return (true);
+		intersection = solve_caps(cylinder, point->coords, point->light_ray);
+		if (intersection > 0.000001 && intersection < point->closest)
+			return (true);
 		cylinder = cylinder->next;
 	}
 	return (false);
@@ -299,7 +291,7 @@ void	render(t_scene *scene)
 			intersect_planes(scene, &point);
 			intersect_spheres(scene, &point);
 			intersect_cylinders(scene, &point);
-			point.coords = v3_add(scene->camera->coords, v3_scale(point.cam_ray, point.closest));
+			point.coords = ray_at(scene->camera->coords, point.cam_ray, point.closest);
 			point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
 			point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
 			apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, &point));
