@@ -15,12 +15,27 @@ void	change_color(t_color *color, int red, int green, int blue)
 	color->blue = blue;
 }
 
+double	 solve_plane(t_plane *plane, t_camera *camera, t_point *point)
+{
+	double	numerator;
+	double	denominator;
+
+	numerator = v3_dot_product(v3_substract(plane->coords, camera->coords), plane->normal);
+	denominator = v3_dot_product(point->cam_ray, plane->normal);
+	if (denominator == 0 && numerator == 0)
+		return (0);
+	else if (denominator == 0)
+		return (-1);
+	else
+		return (numerator / denominator);
+}
+
 void	intersect_planes(t_scene *scene, t_point *point)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = v3_dot_product(v3_substract(plane->coords, scene->camera->coords), plane->normal) / v3_dot_product(point->cam_ray, plane->normal);
+		double intersection = solve_plane(plane, scene->camera, point);
 		if (intersection > 0 && intersection < point->closest)
 		{
 			point->closest = intersection;
@@ -116,13 +131,13 @@ void	intersect_cylinders(t_scene *scene, t_point *point)
 	}
 }
 
-bool crash_with_plane(t_scene *scene, t_point point)
+bool crash_with_planes(t_scene *scene, t_point *point)
 {
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = v3_dot_product(v3_substract(plane->coords, point.coords), plane->normal) / v3_dot_product(point.light_ray, plane->normal);
-		if (intersection > 0.000001 && intersection < point.light_distance)
+		double intersection = solve_plane(plane, scene->camera, point);
+		if (intersection > 0.000001 && intersection < point->light_distance)
 			return (true);
 		plane = plane->next;
 	}
@@ -131,32 +146,32 @@ bool crash_with_plane(t_scene *scene, t_point point)
 
 //FIXME: Dont illuminate when light is inside sphere and camera isnt
 //FIXME: Wrong shadow in sphere
-bool crash_with_sphere(t_scene *scene, t_point point)
+bool crash_with_spheres(t_scene *scene, t_point *point)
 {
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
-		t_vector k = v3_substract(point.coords, sphere->coords);
-		double disc = pow(v3_dot_product(k, point.light_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
+		t_vector k = v3_substract(point->coords, sphere->coords);
+		double disc = pow(v3_dot_product(k, point->light_ray), 2) - v3_dot_product(k, k) + pow(sphere->radius, 2);
 		double intersection = -1;
 		if (disc >= 0)
-			intersection = -v3_dot_product(k, point.light_ray) - sqrt(disc);
-		if (intersection > 0.000001 && intersection < point.light_distance)
+			intersection = -v3_dot_product(k, point->light_ray) - sqrt(disc);
+		if (intersection > 0.000001 && intersection < point->light_distance)
 			return (true);
 		sphere = sphere->next;
 	}
 	return (false);
 }
 
-bool	crash_with_cylinder(t_scene *scene, t_point point)
+bool	crash_with_cylinders(t_scene *scene, t_point *point)
 {
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
 		// BODY
 
-		t_vector k = v3_substract(point.coords, cylinder->coords);
-		t_vector d = point.light_ray;
+		t_vector k = v3_substract(point->coords, cylinder->coords);
+		t_vector d = point->light_ray;
 		t_vector A = cylinder->axis;
 		t_vector D = v3_substract(d, v3_scale(A, v3_dot_product(d, A)));
 		t_vector K = v3_substract(k, v3_scale(A, v3_dot_product(k, A)));
@@ -170,32 +185,32 @@ bool	crash_with_cylinder(t_scene *scene, t_point point)
 		if (disc >= 0)
 			intersection = (-DK - sqrt(disc)) / DD;
 
-		t_vector intersection_point = v3_add(point.coords, v3_scale(d, intersection));
+		t_vector intersection_point = v3_add(point->coords, v3_scale(d, intersection));
 		double h = v3_dot_product(v3_substract(intersection_point, cylinder->coords), A);
 
 		if (fabs(h) <= cylinder->half_height)
 		{
-			if (intersection > 0.000001 && intersection < point.closest)
+			if (intersection > 0.000001 && intersection < point->closest)
 				return (true);
 		}
 
 		// TOP CAP
 		t_coords	center_up = v3_add(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_up = v3_dot_product(v3_substract(center_up, point.coords), cylinder->axis) / v3_dot_product(point.light_ray, cylinder->axis);
-		t_coords intersection_up = v3_add(point.coords, v3_scale(point.light_ray, distance_up));
+		double	distance_up = v3_dot_product(v3_substract(center_up, point->coords), cylinder->axis) / v3_dot_product(point->light_ray, cylinder->axis);
+		t_coords intersection_up = v3_add(point->coords, v3_scale(point->light_ray, distance_up));
 		if (v3_magnitude(v3_substract(intersection_up, center_up)) <= cylinder->radius)
 		{
-			if (distance_up > 0.000001 && distance_up < point.closest)
+			if (distance_up > 0.000001 && distance_up < point->closest)
 				return (true);
 		}
 
 		// BOTTOM CAP
 		t_coords	center_down = v3_substract(cylinder->coords, v3_scale(cylinder->axis, cylinder->half_height));
-		double	distance_down = v3_dot_product(v3_substract(center_down, point.coords), cylinder->axis) / v3_dot_product(point.light_ray, cylinder->axis);
-		t_coords	intersection_down = v3_add(point.coords, v3_scale(point.light_ray, distance_down));
+		double	distance_down = v3_dot_product(v3_substract(center_down, point->coords), cylinder->axis) / v3_dot_product(point->light_ray, cylinder->axis);
+		t_coords	intersection_down = v3_add(point->coords, v3_scale(point->light_ray, distance_down));
 		if (v3_magnitude(v3_substract(intersection_down, center_down)) <= cylinder->radius)
 		{
-			if (distance_down > 0.000001 && distance_down < point.closest)
+			if (distance_down > 0.000001 && distance_down < point->closest)
 				return (true);
 		}
 
@@ -245,14 +260,14 @@ void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_sh
 	point->color = final;
 }
 
-bool	light_is_behind(t_point point)
+bool	light_is_behind(t_point *point)
 {
-	return (v3_dot_product(point.normal, point.light_ray) < 0);
+	return (v3_dot_product(point->normal, point->light_ray) < 0);
 }
 
-bool	has_obstacles(t_scene *scene, t_point point)
+bool	has_obstacles(t_scene *scene, t_point *point)
 {
-	return (light_is_behind(point) || crash_with_plane(scene, point) || crash_with_sphere(scene, point) || crash_with_cylinder(scene, point));
+	return (light_is_behind(point) || crash_with_planes(scene, point) || crash_with_spheres(scene, point) || crash_with_cylinders(scene, point));
 }
 
 void	render(t_scene *scene)
@@ -276,7 +291,7 @@ void	render(t_scene *scene)
 			point.coords = v3_add(scene->camera->coords, v3_scale(point.cam_ray, point.closest));
 			point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
 			point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
-			apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, point));
+			apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, &point));
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&point.color));
 			j++;
 		}

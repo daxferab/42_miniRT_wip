@@ -32,7 +32,7 @@ $t = \frac{(p - o) · n}{d · n}$
 Edge cases:  
 - The denominator d · n == 0, the ray and the plane are parallel.  
   - If the numerator (p - o) · n != 0, the ray is outside the plane, there is no intersection.  
-  - If the numerator (p - o) · n == 0, the ray is in the plane, the are infinite intersections.  
+  - If the numerator (p - o) · n == 0, the ray is in the plane, there are infinite intersections.  
 - t < 0, the intersection is behind the camera, it is not considered.  
 - t >= 0, t indicates the distance from the origin of the ray to the intersection.  
 
