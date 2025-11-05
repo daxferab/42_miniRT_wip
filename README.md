@@ -38,7 +38,7 @@ Edge cases:
 
 ### Sphere equation
 
-Every point on the surface of the sphere are at a fixed distance from the center.  
+Every point on the surface of the sphere are at a constant distance from the center.  
 
 $|x - c| = r$  
 
@@ -72,3 +72,20 @@ Edge cases:
   - If t_1 < t_2 < 0, the sphere is behind the camera, it is not considered.  
   - If 0 < t_1 < t_2, t_1 indicates the distance from the origin of the ray to the intersection.  
   - If t_1 < 0 < t_2, the origin of the ray is inside the sphere.  
+
+### Cylinder equation
+
+Every point on the surface of the cylinder body is at a constant distance from its projection onto the cylinder's axis.
+
+$|(x - c) - ((x - c) · a)a| = r$  
+$(x - c) · a <= h$  
+
+- x: any point on the cylinder body  
+- c: center of the cylinder  
+- a: axis of the cylinder  
+- r: radius of the cylinder  
+- h: half height of the cylinder  
+
+### Intersection of a ray with a cylinder
+
+

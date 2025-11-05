@@ -179,6 +179,7 @@ struct s_point
 	t_vector	cam_ray;
 	t_vector	light_ray;
 	double		light_distance;
+	t_vector	normal;
 };
 
 

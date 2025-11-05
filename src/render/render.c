@@ -24,6 +24,9 @@ void	intersect_planes(t_scene *scene, t_point *point)
 		if (intersection > 0 && intersection < point->closest)
 		{
 			point->closest = intersection;
+			point->normal = plane->normal;
+			if (v3_dot_product(point->normal, point->cam_ray) > 0)
+				point->normal = v3_scale(point->normal, -1);
 			change_color(&(point->color), plane->color.red, plane->color.green, plane->color.blue);
 		}
 		plane = plane->next;
@@ -242,9 +245,14 @@ void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_sh
 	point->color = final;
 }
 
+bool	light_is_behind(t_point point)
+{
+	return (v3_dot_product(point.normal, point.light_ray) < 0);
+}
+
 bool	has_obstacles(t_scene *scene, t_point point)
 {
-	return (crash_with_plane(scene, point) || crash_with_sphere(scene, point) || crash_with_cylinder(scene, point));
+	return (light_is_behind(point) || crash_with_plane(scene, point) || crash_with_sphere(scene, point) || crash_with_cylinder(scene, point));
 }
 
 void	render(t_scene *scene)
