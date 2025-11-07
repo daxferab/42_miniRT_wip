@@ -206,8 +206,6 @@ bool crash_with_planes(t_scene *scene, t_point *point)
 	return (false);
 }
 
-//FIXME: Dont illuminate when light is inside sphere and camera isnt
-//FIXME: Wrong shadow in sphere
 bool crash_with_spheres(t_scene *scene, t_point *point)
 {
 	t_sphere *sphere = scene->sphere_list;
