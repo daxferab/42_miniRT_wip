@@ -19,6 +19,8 @@
 # define WIDTH	1080
 # define HEIGHT	720
 
+# define EPSILON	0.001
+
 # ifndef M_PI
 #  define M_PI 3.14159265358979323846
 # endif
@@ -180,6 +182,7 @@ struct s_point
 	t_vector	light_ray;
 	double		light_distance;
 	t_vector	normal;
+	t_coords	coords_adjusted;
 };
 
 

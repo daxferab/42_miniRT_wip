@@ -198,8 +198,8 @@ bool crash_with_planes(t_scene *scene, t_point *point)
 	t_plane *plane = scene->plane_list;
 	while (plane)
 	{
-		double intersection = solve_plane(plane, point->coords, point->light_ray);
-		if (intersection > 0.000001 && intersection < point->light_distance)
+		double intersection = solve_plane(plane, point->coords_adjusted, point->light_ray);
+		if (intersection > 0 && intersection < point->light_distance)
 			return (true);
 		plane = plane->next;
 	}
@@ -213,8 +213,8 @@ bool crash_with_spheres(t_scene *scene, t_point *point)
 	t_sphere *sphere = scene->sphere_list;
 	while (sphere)
 	{
-		double intersection = solve_sphere(sphere, point->coords, point->light_ray);
-		if (intersection > 0.000001 && intersection < point->light_distance)
+		double intersection = solve_sphere(sphere, point->coords_adjusted, point->light_ray);
+		if (intersection > 0 && intersection < point->light_distance)
 			return (true);
 		sphere = sphere->next;
 	}
@@ -226,11 +226,11 @@ bool	crash_with_cylinders(t_scene *scene, t_point *point)
 	t_cylinder *cylinder = scene->cylinder_list;
 	while (cylinder)
 	{
-		double intersection = solve_cylinder(cylinder, point->coords, point->light_ray);
-		if (intersection > 0.000001 && intersection < point->light_distance)
+		double intersection = solve_cylinder(cylinder, point->coords_adjusted, point->light_ray);
+		if (intersection > 0 && intersection < point->light_distance)
 			return (true);
-		intersection = solve_caps(cylinder, point->coords, point->light_ray);
-		if (intersection > 0.000001 && intersection < point->light_distance)
+		intersection = solve_caps(cylinder, point->coords_adjusted, point->light_ray);
+		if (intersection > 0 && intersection < point->light_distance)
 			return (true);
 		cylinder = cylinder->next;
 	}
@@ -310,6 +310,7 @@ void	render(t_scene *scene)
 			{
 				point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
 				point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
+				point.coords_adjusted = ray_at(point.coords, point.normal, EPSILON);
 				apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, &point));
 			}
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&point.color));
