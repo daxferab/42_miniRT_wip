@@ -32,11 +32,12 @@ INC_DIR := include/
 HEADER := $(INC_DIR)/minirt.h
 
 VPATH :=  $(SRC_DIR) $(addprefix $(SRC_DIR), \
-			mlx\
-			parse\
-			parse/read\
-			render\
-			vector\
+				mlx\
+				parse\
+				parse/read\
+				render\
+				render/objects\
+				vector\
 			)
 
 SOURCES :=	\
@@ -72,11 +73,18 @@ SOURCES +=	\
 			skip_spaces.c\
 #render
 SOURCES +=	\
+			light.c\
 			move_camera.c\
+			render_utils.c\
 			render.c\
 			rotate_camera_horizontally.c\
 			rotate_camera_vertically.c\
 			update_camera_axis.c\
+#render/objects
+SOURCES +=	\
+			cylinder.c\
+			plane.c\
+			sphere.c\
 #vector
 SOURCES +=	\
 			v3_add.c\

@@ -235,11 +235,34 @@ bool	skip_spaces(char **line);
 /*                             FUNCTIONS - RENDER                             */
 /******************************************************************************/
 
+void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_shadow);
+
 void	render(t_scene *scene);
 void	rotate_camera_horizontally(t_scene *scene, double direction);
 void	rotate_camera_vertically(t_scene *scene, double direction);
 void	move_camera(t_scene *scene);
 void	update_camera_axis(t_scene *scene, t_camera *cam);
+
+t_vector	get_ray_direction(t_scene *scene, int i, int j);
+t_coords	ray_at(t_coords origin, t_vector direction, double distance);
+
+void	change_color(t_color *color, int red, int green, int blue);
+bool	is_in_height(t_cylinder *cylinder, t_coords origin, t_vector direction, double distance);
+bool	is_closer(t_scene *scene, t_point *point, double intersection);
+
+/******************************************************************************/
+/*                        FUNCTIONS - RENDER/OBJECTS                          */
+/******************************************************************************/
+
+void	intersect_cylinders(t_scene *scene, t_point *point);
+bool	crash_with_cylinders(t_scene *scene, t_point *point);
+
+void	intersect_planes(t_scene *scene, t_point *point);
+bool	crash_with_planes(t_scene *scene, t_point *point);
+double	solve_plane(t_plane *plane, t_coords origin, t_vector direction);
+
+void	intersect_spheres(t_scene *scene, t_point *point);
+bool	crash_with_spheres(t_scene *scene, t_point *point);
 
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */
