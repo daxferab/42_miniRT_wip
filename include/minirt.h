@@ -171,8 +171,6 @@ struct s_scene
 	mlx_image_t	*img;
 	t_vector	movement;
 	t_vector	world_up;
-	t_vector	world_east;
-	t_vector	world_south;
 };
 
 struct s_point

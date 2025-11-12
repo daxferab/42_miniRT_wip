@@ -1,6 +1,5 @@
 #include "minirt.h"
 
-//TODO glitches if rotating at the same time
 void	move_camera(t_scene *scene)
 {
 	t_vector	movement;
