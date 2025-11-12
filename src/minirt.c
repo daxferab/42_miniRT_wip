@@ -28,6 +28,8 @@ static void	init(t_scene *scene)
 	scene->img = mlx_new_image(scene->mlx, WIDTH, HEIGHT);
 	if (!scene->img)
 		free_exit(scene, ERR_MLX_IMG);
+	scene->world_east = v3_build(1, 0, 0);
 	scene->world_up = v3_build(0, 1, 0);
+	scene->world_south = v3_build(0, 0, 1);
 	update_camera_axis(scene, scene->camera);
 }
