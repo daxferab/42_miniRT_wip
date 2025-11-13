@@ -23,10 +23,14 @@ void	render(t_scene *scene)
 			intersect_cylinders(scene, &point);
 			if (point.closest >= 0)
 			{
-				point.light_ray = v3_normalize(v3_substract(scene->light->coords, point.coords));
-				point.light_distance = v3_magnitude(v3_substract(scene->light->coords, point.coords));
-				point.coords_adjusted = ray_at(point.coords, point.normal, EPSILON);
-				apply_lights(&point, scene->ambient, scene->light, has_obstacles(scene, &point));
+				point.light_ray = v3_normalize(
+						v3_substract(scene->light->coords, point.coords));
+				point.light_distance = v3_magnitude(
+						v3_substract(scene->light->coords, point.coords));
+				point.coords_adjusted = ray_at(
+						point.coords, point.normal, EPSILON);
+				apply_lights(&point, scene->ambient, scene->light,
+					has_obstacles(scene, &point));
 			}
 			mlx_put_pixel(scene->img, i, j, rgb_to_uint(&point.color));
 			j++;
@@ -42,5 +46,10 @@ static bool	light_is_behind(t_point *point)
 
 static bool	has_obstacles(t_scene *scene, t_point *point)
 {
-	return (light_is_behind(point) || crash_with_planes(scene, point) || crash_with_spheres(scene, point) || crash_with_cylinders(scene, point));
+	return (
+		light_is_behind(point)
+		|| crash_with_planes(scene, point)
+		|| crash_with_spheres(scene, point)
+		|| crash_with_cylinders(scene, point)
+	);
 }

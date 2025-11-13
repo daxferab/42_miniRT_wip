@@ -190,91 +190,96 @@ struct s_point
 /*                                 FUNCTIONS                                  */
 /******************************************************************************/
 
-double	deg_to_rad(double x);
-void	free_exit(t_scene *scene, t_error error);
-double	rad_to_deg(double x);
+double		deg_to_rad(double x);
+void		free_exit(t_scene *scene, t_error error);
+double		rad_to_deg(double x);
 uint32_t	rgb_to_uint(t_color *color);
 
 /******************************************************************************/
 /*                              FUNCTIONS - MLX                               */
 /******************************************************************************/
 
-void	close_hook(void *param);
-void	key_hook(mlx_key_data_t keydata, void *param);
-void	loop_hook(void *param);
+void		close_hook(void *param);
+void		key_hook(mlx_key_data_t keydata, void *param);
+void		loop_hook(void *param);
 
 /******************************************************************************/
 /*                             FUNCTIONS - PARSE                              */
 /******************************************************************************/
 
-void	parse_file(t_scene *scene, char *path);
-void	parse_line(t_scene *scene, char *line);
+void		parse_file(t_scene *scene, char *path);
+void		parse_line(t_scene *scene, char *line);
 
-void	parse_ambient(t_scene *scene, char **line);
-void	parse_camera(t_scene *scene, char **line);
-void	parse_light(t_scene *scene, char **line);
+void		parse_ambient(t_scene *scene, char **line);
+void		parse_camera(t_scene *scene, char **line);
+void		parse_light(t_scene *scene, char **line);
 
-void	parse_plane(t_scene *scene, char **line);
-void	parse_sphere(t_scene *scene, char **line);
-void	parse_cylinder(t_scene *scene, char **line);
+void		parse_plane(t_scene *scene, char **line);
+void		parse_sphere(t_scene *scene, char **line);
+void		parse_cylinder(t_scene *scene, char **line);
 
 /******************************************************************************/
 /*                           FUNCTIONS - PARSE/READ                           */
 /******************************************************************************/
 
-bool	read_color(char **line, t_color *color);
-bool	read_double_positive_halfed(char **line, double *result);
-bool	read_double_ratio(char **line, double *result);
-bool	read_double(char **line, double *result);
-bool	read_int_maxed(char **line, int *result, int max_range);
-bool	read_v3_normalized(char **line, struct s_v3 *v3);
-bool	read_v3(char **line, struct s_v3 *v3);
-bool	skip_spaces(char **line);
+bool		read_color(char **line, t_color *color);
+bool		read_double_positive_halfed(char **line, double *result);
+bool		read_double_ratio(char **line, double *result);
+bool		read_double(char **line, double *result);
+bool		read_int_maxed(char **line, int *result, int max_range);
+bool		read_v3_normalized(char **line, t_v3 *v3);
+bool		read_v3(char **line, t_v3 *v3);
+bool		skip_spaces(char **line);
 
 /******************************************************************************/
 /*                             FUNCTIONS - RENDER                             */
 /******************************************************************************/
 
-void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_shadow);
+void		apply_lights(
+				t_point *point, t_ambient *ambient, t_light *light, bool in_shadow);
 
-void	render(t_scene *scene);
-void	rotate_camera_horizontally(t_scene *scene, double direction);
-void	rotate_camera_vertically(t_scene *scene, double direction);
-void	move_camera(t_scene *scene);
-void	update_camera_axis(t_scene *scene, t_camera *cam);
+void		render(t_scene *scene);
+void		rotate_camera_horizontally(t_scene *scene, double direction);
+void		rotate_camera_vertically(t_scene *scene, double direction);
+void		move_camera(t_scene *scene);
+void		update_camera_axis(t_scene *scene, t_camera *cam);
 
 t_vector	get_ray_direction(t_scene *scene, int i, int j);
 t_coords	ray_at(t_coords origin, t_vector direction, double distance);
 
-void	change_color(t_color *color, int red, int green, int blue);
-bool	is_in_height(t_cylinder *cylinder, t_coords origin, t_vector direction, double distance);
-bool	is_closer(t_scene *scene, t_point *point, double intersection);
+void		change_color(t_color *color, int red, int green, int blue);
+bool		is_in_height(t_cylinder *cylinder,
+				t_coords origin, t_vector direction, double distance);
+bool		is_closer(t_scene *scene, t_point *point, double intersection);
 
 /******************************************************************************/
 /*                        FUNCTIONS - RENDER/OBJECTS                          */
 /******************************************************************************/
 
-void	intersect_cylinders(t_scene *scene, t_point *point);
-bool	crash_with_cylinders(t_scene *scene, t_point *point);
+void		intersect_cylinders(t_scene *scene, t_point *point);
+bool		crash_with_cylinders(t_scene *scene, t_point *point);
 
-void	intersect_planes(t_scene *scene, t_point *point);
-bool	crash_with_planes(t_scene *scene, t_point *point);
-double	solve_plane(t_plane *plane, t_coords origin, t_vector direction);
+void		intersect_planes(t_scene *scene, t_point *point);
+bool		crash_with_planes(t_scene *scene, t_point *point);
 
-void	intersect_spheres(t_scene *scene, t_point *point);
-bool	crash_with_spheres(t_scene *scene, t_point *point);
+void		intersect_spheres(t_scene *scene, t_point *point);
+bool		crash_with_spheres(t_scene *scene, t_point *point);
+
+double		solve_plane(t_plane *plane, t_coords origin, t_vector direction);
+double		solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction);
+double		solve_cylinder(t_cylinder *cylinder, t_coords origin, t_vector dir);
 
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */
 /******************************************************************************/
 
-t_v3	v3_add(t_v3 a, t_v3 b);
-t_v3	v3_build(double x, double y, double z);
-t_v3	v3_cross_product(t_v3 a, t_v3 b);
-double	v3_dot_product(t_v3 a, t_v3 b);
-double	v3_magnitude(t_v3 v3);
-t_v3	v3_normalize(t_v3 v3);
-t_v3	v3_scale(t_v3	v3, double scale);
-t_v3	v3_substract(t_v3 a, t_v3 b);
+t_v3		v3_add(t_v3 a, t_v3 b);
+t_v3		v3_build(double x, double y, double z);
+t_v3		v3_cross_product(t_v3 a, t_v3 b);
+double		v3_dot_product(t_v3 a, t_v3 b);
+double		v3_magnitude(t_v3 v3);
+t_v3		v3_normalize(t_v3 v3);
+t_v3		v3_scale(t_v3	v3, double scale);
+t_v3		v3_substract(t_v3 a, t_v3 b);
 
 #endif

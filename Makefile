@@ -84,6 +84,7 @@ SOURCES +=	\
 SOURCES +=	\
 			cylinder.c\
 			plane.c\
+			solvers.c\
 			sphere.c\
 #vector
 SOURCES +=	\
