@@ -40,7 +40,6 @@ double	solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction)
 //CYLINDER
 
 static double	solve_disk(t_cylinder *cyl, t_coords origin, t_vector dir, t_plane *plane);
-static double	solve_caps(t_cylinder *cyl, t_coords origin, t_vector dir);
 
 double	solve_cylinder(t_cylinder *cyl, t_coords origin, t_vector dir)
 {
@@ -74,22 +73,7 @@ double	solve_cylinder(t_cylinder *cyl, t_coords origin, t_vector dir)
 	return (-1);
 }
 
-static double	solve_disk(t_cylinder *cyl, t_coords origin, t_vector dir, t_plane *plane)
-{
-	double		distance;
-	t_coords	intersection;
-
-	distance = solve_plane(plane, origin, dir);
-	if (distance >= 0)
-	{
-		intersection = ray_at(origin, dir, distance);
-		if (v3_magnitude(v3_substract(intersection, plane->coords)) <= cyl->radius)
-			return (distance);
-	}
-	return (-1);
-}
-
-static double	solve_caps(t_cylinder *cyl, t_coords origin, t_vector dir)
+double	solve_caps(t_cylinder *cyl, t_coords origin, t_vector dir)
 {
 	t_plane		plane;
 	double		distance_1;
@@ -104,5 +88,20 @@ static double	solve_caps(t_cylinder *cyl, t_coords origin, t_vector dir)
 		return (distance_1);
 	if (distance_2 >= 0 && (distance_2 <= distance_1 || distance_1 < 0))
 		return (distance_2);
+	return (-1);
+}
+
+static double	solve_disk(t_cylinder *cyl, t_coords origin, t_vector dir, t_plane *plane)
+{
+	double		distance;
+	t_coords	intersection;
+
+	distance = solve_plane(plane, origin, dir);
+	if (distance >= 0)
+	{
+		intersection = ray_at(origin, dir, distance);
+		if (v3_magnitude(v3_substract(intersection, plane->coords)) <= cyl->radius)
+			return (distance);
+	}
 	return (-1);
 }

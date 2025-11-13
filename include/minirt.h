@@ -268,7 +268,7 @@ bool		crash_with_spheres(t_scene *scene, t_point *point);
 double		solve_plane(t_plane *plane, t_coords origin, t_vector direction);
 double		solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction);
 double		solve_cylinder(t_cylinder *cylinder, t_coords origin, t_vector dir);
-
+double		solve_caps(t_cylinder *cyl, t_coords origin, t_vector dir);
 /******************************************************************************/
 /*                             FUNCTIONS - VECTOR                             */
 /******************************************************************************/
