@@ -185,7 +185,6 @@ struct s_point
 	t_coords	coords_adjusted;
 };
 
-
 /******************************************************************************/
 /*                                 FUNCTIONS                                  */
 /******************************************************************************/
@@ -235,8 +234,8 @@ bool		skip_spaces(char **line);
 /*                             FUNCTIONS - RENDER                             */
 /******************************************************************************/
 
-void		apply_lights(
-				t_point *point, t_ambient *ambient, t_light *light, bool in_shadow);
+void		apply_lights(t_point *point,
+			t_ambient *ambient, t_light *light, bool in_shadow);
 
 void		render(t_scene *scene);
 void		rotate_camera_horizontally(t_scene *scene, double direction);
