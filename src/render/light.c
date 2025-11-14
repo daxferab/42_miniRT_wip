@@ -37,7 +37,7 @@ static void	apply_light(
 	double	attenuation;
 	double	intensity;
 
-	attenuation = 1 / (1 + 0.1 * distance + 0.01 * pow(distance, 2));
+	attenuation = 1.0 / (1.0 + 0.1 * distance);
 	intensity = light->ratio * attenuation;
 	final->red += color.red * intensity;
 	final->green += color.green * intensity;
