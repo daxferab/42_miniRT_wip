@@ -2,31 +2,30 @@
 
 void	intersect_cylinders(t_scene *scene, t_point *point)
 {
-	t_cylinder	*cylinder;
-	double		intersection;
+	t_cylinder	*cyl;
+	double		intersec;
 	t_vector	v;
 
-	cylinder = scene->cylinder_list;
-	while (cylinder)
+	cyl = scene->cylinder_list;
+	while (cyl)
 	{
-		intersection = solve_cylinder(cylinder, scene->camera->coords, point->cam_ray);
-		if (is_closer(scene, point, intersection))
+		intersec = solve_cylinder(cyl, scene->camera->coords, point->cam_ray);
+		if (is_closer(scene, point, intersec, cyl->color))
 		{
-			v = v3_substract(point->coords, cylinder->coords);
-			point->normal = v3_normalize(v3_substract(v, v3_scale(cylinder->axis, v3_dot_product(v, cylinder->axis))));
+			v = v3_substract(point->coords, cyl->coords);
+			point->normal = v3_normalize(v3_substract(v,
+						v3_scale(cyl->axis, v3_dot_product(v, cyl->axis))));
 			if (v3_dot_product(point->normal, point->cam_ray) > 0)
 				point->normal = v3_scale(point->normal, -1);
-			change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 		}
-		intersection = solve_caps(cylinder, scene->camera->coords, point->cam_ray);
-		if (is_closer(scene, point, intersection))
+		intersec = solve_caps(cyl, scene->camera->coords, point->cam_ray);
+		if (is_closer(scene, point, intersec, cyl->color))
 		{
-			point->normal = cylinder->axis;
+			point->normal = cyl->axis;
 			if (v3_dot_product(point->normal, point->cam_ray) > 0)
 				point->normal = v3_scale(point->normal, -1);
-			change_color(&(point->color), cylinder->color.red, cylinder->color.green, cylinder->color.blue);
 		}
-		cylinder = cylinder->next;
+		cyl = cyl->next;
 	}
 }
 

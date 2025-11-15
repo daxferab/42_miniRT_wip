@@ -29,5 +29,6 @@ static void	init(t_scene *scene)
 	if (!scene->img)
 		free_exit(scene, ERR_MLX_IMG);
 	scene->world_up = v3_build(0, 1, 0);
+	scene->background_color = (t_color){0, 0, 0};
 	update_camera_axis(scene, scene->camera);
 }

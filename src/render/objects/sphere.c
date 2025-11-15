@@ -10,14 +10,12 @@ void	intersect_spheres(t_scene *scene, t_point *point)
 	{
 		intersection = solve_sphere(
 				sphere, scene->camera->coords, point->cam_ray);
-		if (is_closer(scene, point, intersection))
+		if (is_closer(scene, point, intersection, sphere->color))
 		{
 			point->normal = v3_normalize(
 					v3_substract(point->coords, sphere->coords));
 			if (v3_dot_product(point->normal, point->cam_ray) > 0)
 				point->normal = v3_scale(point->normal, -1);
-			change_color(&(point->color),
-				sphere->color.red, sphere->color.green, sphere->color.blue);
 		}
 		sphere = sphere->next;
 	}

@@ -21,13 +21,6 @@ t_coords	ray_at(t_coords origin, t_vector direction, double distance)
 	return (v3_add(origin, v3_scale(direction, distance)));
 }
 
-void	change_color(t_color *color, int red, int green, int blue)
-{
-	color->red = red;
-	color->green = green;
-	color->blue = blue;
-}
-
 bool	is_in_height(t_cylinder *cyl, t_coords origin, t_vector dir, double dis)
 {
 	t_vector	intersection;
@@ -38,11 +31,13 @@ bool	is_in_height(t_cylinder *cyl, t_coords origin, t_vector dir, double dis)
 	return (fabs(height) <= cyl->half_height);
 }
 
-bool	is_closer(t_scene *scene, t_point *point, double intersec)
+bool	is_closer(t_scene *scene,
+	t_point *point, double intersec, t_color color)
 {
 	if (intersec <= 0 || (intersec >= point->closest && point->closest >= 0))
 		return (false);
 	point->closest = intersec;
 	point->coords = ray_at(scene->camera->coords, point->cam_ray, intersec);
+	point->color = color;
 	return (true);
 }

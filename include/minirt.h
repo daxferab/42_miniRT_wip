@@ -169,6 +169,7 @@ struct s_scene
 	char		*line;
 	mlx_t		*mlx;
 	mlx_image_t	*img;
+	t_color		background_color;
 	t_vector	movement;
 	t_vector	world_up;
 };
@@ -235,7 +236,7 @@ bool		skip_spaces(char **line);
 /******************************************************************************/
 
 void		apply_lights(t_point *point,
-			t_ambient *ambient, t_light *light, bool in_shadow);
+				t_ambient *ambient, t_light *light, bool in_shadow);
 
 void		render(t_scene *scene);
 void		rotate_camera_horizontally(t_scene *scene, double direction);
@@ -246,10 +247,10 @@ void		update_camera_axis(t_scene *scene, t_camera *cam);
 t_vector	get_ray_direction(t_scene *scene, int i, int j);
 t_coords	ray_at(t_coords origin, t_vector direction, double distance);
 
-void		change_color(t_color *color, int red, int green, int blue);
 bool		is_in_height(t_cylinder *cylinder,
 				t_coords origin, t_vector direction, double distance);
-bool		is_closer(t_scene *scene, t_point *point, double intersection);
+bool		is_closer(t_scene *scene,
+				t_point *point, double intersection, t_color color);
 
 /******************************************************************************/
 /*                        FUNCTIONS - RENDER/OBJECTS                          */

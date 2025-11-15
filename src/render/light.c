@@ -11,13 +11,11 @@ void	apply_lights(t_point *point,
 	t_color	final;
 	t_color	add_light;
 
-	change_color(
-		&final, point->color.red, point->color.green, point->color.blue);
+	final = point->color;
 	apply_ambient(ambient, &final);
 	if (!in_shadow)
 	{
-		change_color(&add_light,
-			point->color.red, point->color.green, point->color.blue);
+		add_light = point->color;
 		apply_light(light, point->light_distance, add_light, &final);
 	}
 	clamp_values(&final);

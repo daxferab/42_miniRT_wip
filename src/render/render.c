@@ -17,7 +17,7 @@ void	render(t_scene *scene)
 		{
 			point.closest = -1;
 			point.cam_ray = get_ray_direction(scene, i, j);
-			change_color(&point.color, 0, 0, 0);
+			point.color = scene->background_color;
 			intersect_planes(scene, &point);
 			intersect_spheres(scene, &point);
 			intersect_cylinders(scene, &point);

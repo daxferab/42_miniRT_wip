@@ -42,34 +42,36 @@ double	solve_sphere(t_sphere *sphere, t_coords origin, t_vector direction)
 static double	solve_disk(
 			t_cylinder *cyl, t_coords origin, t_vector dir, t_plane *plane);
 
+// d[0] is l·m;
+// d[1] is l·l;
+// d[2] is discriminant;
+// d[3] is t (solution);
+
 double	solve_cylinder(t_cylinder *cyl, t_coords origin, t_vector dir)
 {
 	t_vector	k;
-	t_vector	d;
-	t_vector	a;
-	double		da;
-	double		dd;
-	double		disc;
-	double		t;
+	t_vector	l;
+	t_vector	m;
+	double		d[4];
 
 	k = v3_substract(origin, cyl->coords);
-	d = v3_substract(dir, v3_scale(cyl->axis, v3_dot_product(dir, cyl->axis)));
-	a = v3_substract(k, v3_scale(cyl->axis, v3_dot_product(k, cyl->axis)));
-	da = v3_dot_product(d, a);
-	dd = v3_dot_product(d, d);
-	disc = da * da - dd * (v3_dot_product(a, a) - pow(cyl->radius, 2));
-	if (dd == 0) //direction is parallel to axis
+	l = v3_substract(dir, v3_scale(cyl->axis, v3_dot_product(dir, cyl->axis)));
+	m = v3_substract(k, v3_scale(cyl->axis, v3_dot_product(k, cyl->axis)));
+	d[0] = v3_dot_product(l, m);
+	d[1] = v3_dot_product(l, l);
+	d[2] = d[0] * d[0] - d[1] * (v3_dot_product(m, m) - pow(cyl->radius, 2));
+	if (d[1] == 0)
 		return (-1);
-	if (disc < 0)
+	if (d[2] < 0)
 		return (-1);
-	t = (-da - sqrt(disc)) / dd;
-	if (t >= 0 && is_in_height(cyl, origin, dir, t))
-		return (t);
-	if (disc == 0)
+	d[3] = (-d[0] - sqrt(d[2])) / d[1];
+	if (d[3] >= 0 && is_in_height(cyl, origin, dir, d[3]))
+		return (d[3]);
+	if (d[2] == 0)
 		return (-1);
-	t = (-da + sqrt(disc)) / dd;
-	if (t >= 0 && is_in_height(cyl, origin, dir, t))
-		return (t);
+	d[3] = (-d[0] + sqrt(d[2])) / d[1];
+	if (d[3] >= 0 && is_in_height(cyl, origin, dir, d[3]))
+		return (d[3]);
 	return (-1);
 }
 

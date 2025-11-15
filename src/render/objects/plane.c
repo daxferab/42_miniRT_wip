@@ -10,13 +10,11 @@ void	intersect_planes(t_scene *scene, t_point *point)
 	{
 		intersection = solve_plane(
 				plane, scene->camera->coords, point->cam_ray);
-		if (is_closer(scene, point, intersection))
+		if (is_closer(scene, point, intersection, plane->color))
 		{
 			point->normal = plane->normal;
 			if (v3_dot_product(point->normal, point->cam_ray) > 0)
 				point->normal = v3_scale(point->normal, -1);
-			change_color(&(point->color),
-				plane->color.red, plane->color.green, plane->color.blue);
 		}
 		plane = plane->next;
 	}
