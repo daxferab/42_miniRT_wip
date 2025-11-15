@@ -1,6 +1,7 @@
 #include "minirt.h"
 
 static void	init(t_scene *scene);
+static void	init_camera(t_scene *scene, t_vector orientation);
 
 int	main(int argc, char **argv)
 {
@@ -28,7 +29,26 @@ static void	init(t_scene *scene)
 	scene->img = mlx_new_image(scene->mlx, WIDTH, HEIGHT);
 	if (!scene->img)
 		free_exit(scene, ERR_MLX_IMG);
+	scene->world_east = v3_build(1, 0, 0);
 	scene->world_up = v3_build(0, 1, 0);
+	scene->world_south = v3_build(0, 0, 1);
 	scene->background_color = (t_color){0, 0, 0};
+	init_camera(scene, scene->camera->orientation);
+}
+
+static void	init_camera(t_scene *scene, t_vector orientation)
+{
+	if (fabs(orientation.y) == 1)
+	{
+		scene->camera->pitch = M_PI / 2 * orientation.y;
+		scene->camera->yaw = -M_PI / 2;
+	}
+	else
+	{
+		scene->camera->pitch = asin(orientation.y);
+		scene->camera->yaw = atan2(orientation.z, orientation.x);
+	}
+	scene->camera->pitch_to_change = 0;
+	scene->camera->yaw_to_change = 0;
 	update_camera_axis(scene, scene->camera);
 }

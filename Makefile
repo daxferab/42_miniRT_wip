@@ -77,8 +77,7 @@ SOURCES +=	\
 			move_camera.c\
 			render_utils.c\
 			render.c\
-			rotate_camera_horizontally.c\
-			rotate_camera_vertically.c\
+			rotate_camera.c\
 			update_camera_axis.c\
 #render/objects
 SOURCES +=	\
