@@ -1,18 +1,17 @@
 #include "minirt.h"
 
-//TODO special case: orientation is vertical
 void	update_camera_axis(t_scene *scene, t_camera *cam)
 {
+	t_v3	direction;
+
+	direction.x = cos(scene->camera->pitch) * cos(scene->camera->yaw);
+	direction.y = sin(scene->camera->pitch);
+	direction.z = cos(scene->camera->pitch) * sin(scene->camera->yaw);
+	cam->orientation = v3_build(direction.x, direction.y, direction.z);
+	cam->forward = v3_normalize(v3_build(direction.x, 0, direction.z));
+	cam->right = v3_normalize(v3_cross_product(cam->forward, scene->world_up));
 	if (fabs(cam->orientation.y) != 1)
-	{
-		cam->right = v3_normalize(v3_cross_product(cam->orientation, scene->world_up));
 		cam->up = v3_normalize(v3_cross_product(cam->right, cam->orientation));
-		cam->forward = v3_normalize(v3_build(cam->orientation.x, 0, cam->orientation.z));
-		cam->rightward = v3_cross_product(cam->forward, scene->world_up);
-		return ;
-	}
-	cam->right = scene->world_east;
-	cam->up = v3_scale(scene->world_south, cam->orientation.y);
-	cam->forward = v3_scale(scene->world_south, -1);
-	cam->rightward = scene->world_east;
+	else
+		cam->up = v3_scale(cam->forward, -cam->orientation.y);
 }

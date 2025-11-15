@@ -119,10 +119,11 @@ struct s_camera
 {
 	t_coords	coords;
 	t_vector	orientation;
-	t_vector	up;
-	t_vector	right;
 	t_vector	forward;
-	t_vector	rightward;
+	t_vector	right;
+	t_vector	up;
+	double		pitch;
+	double		yaw;
 	int			fov;
 };
 

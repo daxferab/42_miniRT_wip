@@ -1,6 +1,7 @@
 #include "minirt.h"
 
 static void	init(t_scene *scene);
+static void	init_camera(t_scene *scene, t_vector orientation);
 
 int	main(int argc, char **argv)
 {
@@ -31,5 +32,20 @@ static void	init(t_scene *scene)
 	scene->world_east = v3_build(1, 0, 0);
 	scene->world_up = v3_build(0, 1, 0);
 	scene->world_south = v3_build(0, 0, 1);
+	init_camera(scene, scene->camera->orientation);
+}
+
+static void	init_camera(t_scene *scene, t_vector orientation)
+{
+	if (fabs(orientation.y) == 1)
+	{
+		scene->camera->yaw = -M_PI / 2;
+		scene->camera->pitch = M_PI / 2 * orientation.y;
+	}
+	else
+	{
+		scene->camera->yaw = atan2(orientation.z, orientation.x);
+		scene->camera->pitch = asin(orientation.y);
+	}
 	update_camera_axis(scene, scene->camera);
 }
