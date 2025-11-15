@@ -38,12 +38,16 @@ static void	key_hook_move(mlx_key_data_t keydata, t_scene *scene)
 
 static void	key_hook_rotate(mlx_key_data_t keydata, t_scene *scene)
 {
-	if (keydata.key == MLX_KEY_RIGHT && keydata.action != MLX_RELEASE)
-		rotate_camera_horizontally(scene, deg_to_rad(10));
-	if (keydata.key == MLX_KEY_LEFT && keydata.action != MLX_RELEASE)
-		rotate_camera_horizontally(scene, deg_to_rad(-10));
-	if (keydata.key == MLX_KEY_UP && keydata.action != MLX_RELEASE)
-		rotate_camera_vertically(scene, deg_to_rad(5));
-	if (keydata.key == MLX_KEY_DOWN && keydata.action != MLX_RELEASE)
-		rotate_camera_vertically(scene, deg_to_rad(-5));
+	if ((keydata.key == MLX_KEY_UP && keydata.action == MLX_PRESS)
+		|| (keydata.key == MLX_KEY_DOWN && keydata.action == MLX_RELEASE))
+		scene->camera->pitch_to_change += PITCH_CHANGE;
+	if ((keydata.key == MLX_KEY_DOWN && keydata.action == MLX_PRESS)
+		|| (keydata.key == MLX_KEY_UP && keydata.action == MLX_RELEASE))
+		scene->camera->pitch_to_change -= PITCH_CHANGE;
+	if ((keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_PRESS)
+		|| (keydata.key == MLX_KEY_LEFT && keydata.action == MLX_RELEASE))
+		scene->camera->yaw_to_change += YAW_CHANGE;
+	if ((keydata.key == MLX_KEY_LEFT && keydata.action == MLX_PRESS)
+		|| (keydata.key == MLX_KEY_RIGHT && keydata.action == MLX_RELEASE))
+		scene->camera->yaw_to_change -= YAW_CHANGE;
 }

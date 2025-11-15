@@ -39,13 +39,15 @@ static void	init_camera(t_scene *scene, t_vector orientation)
 {
 	if (fabs(orientation.y) == 1)
 	{
-		scene->camera->yaw = -M_PI / 2;
 		scene->camera->pitch = M_PI / 2 * orientation.y;
+		scene->camera->yaw = -M_PI / 2;
 	}
 	else
 	{
-		scene->camera->yaw = atan2(orientation.z, orientation.x);
 		scene->camera->pitch = asin(orientation.y);
+		scene->camera->yaw = atan2(orientation.z, orientation.x);
 	}
+	scene->camera->pitch_to_change = 0;
+	scene->camera->yaw_to_change = 0;
 	update_camera_axis(scene, scene->camera);
 }

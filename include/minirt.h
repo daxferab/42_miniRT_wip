@@ -19,6 +19,9 @@
 # define WIDTH	1080
 # define HEIGHT	720
 
+# define PITCH_CHANGE	5
+# define YAW_CHANGE		10
+
 # define EPSILON	0.001
 
 # ifndef M_PI
@@ -123,7 +126,9 @@ struct s_camera
 	t_vector	right;
 	t_vector	up;
 	double		pitch;
+	double		pitch_to_change;
 	double		yaw;
+	double		yaw_to_change;
 	int			fov;
 };
 
@@ -241,8 +246,7 @@ bool	skip_spaces(char **line);
 void	apply_lights(t_point *point, t_ambient *ambient, t_light *light, bool in_shadow);
 
 void	render(t_scene *scene);
-void	rotate_camera_horizontally(t_scene *scene, double direction);
-void	rotate_camera_vertically(t_scene *scene, double direction);
+void	rotate_camera(t_scene *scene);
 void	move_camera(t_scene *scene);
 void	update_camera_axis(t_scene *scene, t_camera *cam);
 
